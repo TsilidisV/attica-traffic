@@ -2,7 +2,7 @@ name: Daily Pipeline
 
 on:
   schedule:
-    - cron: '50 17 * * *'
+    - cron: '54 17 * * *'
 
 jobs:
   run-pipeline:
