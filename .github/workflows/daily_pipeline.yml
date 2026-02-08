@@ -1,0 +1,22 @@
+name: Daily Pipeline
+
+on:
+  schedule:
+    - cron: '40 19 * * *'
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        
+      - name: Sync dependencies
+        run: uv sync
+        
+      - name: 1. Ingest Data
+        run: uv run python ingestion/ingestion.py daily
