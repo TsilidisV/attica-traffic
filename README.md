@@ -6,22 +6,22 @@
 </p>
 
 <h1 align="center">Attica Traffic Analysis</h1>
-<p align="center"><b>A high-performance, resilient ELT pipeline designed to capture and archive real-time traffic data from the Attica Region (Greece).</b></p>
-<p align="center">This project implements a Hybrid Medallion Architecture, optimizing for both data fidelity and analytical speed. By separating the "Extract & Load" (Python) from the "Transform" (dbt), the pipeline ensures a robust source of truth while keeping the analytics layer agile.</p>
+<p align="center"><b>A high-performance, resilient ELT pipeline <br> designed to capture, archive and analyze daily traffic data from Attica, Greece.</b></p>
+<p align="center">This project implements a Hybrid Medallion Architecture, <br> optimizing for both data fidelity and analytical speed. <br> By separating the "Extract & Load" (Python) from the "Transform" (dbt), <br> the pipeline ensures a robust source of truth <br> while keeping the analytics layer agile.</p>
 
 <p align="center">
-  <a href="https://www.python.org/"> <img height="42" src="https://cdn.simpleicons.org/python/3776AB" /> </a>
-  <a href="https://docs.github.com/en/actions/"> <img height="42" src="https://cdn.simpleicons.org/githubactions/2088FF" /> </a>
-  <a href="https://huggingface.co/docs/datasets/index"> <img height="42" src="https://cdn.simpleicons.org/huggingface/FFD21E" /> </a>
-  <a href="https://motherduck.com/"> <img height="42" src="https://cdn.simpleicons.org/duckdb/FFF000" /> </a>
+  <a href="https://www.python.org/"><img height="42" src="https://cdn.simpleicons.org/python/3776AB" /></a>
+  <a href="https://docs.github.com/en/actions/"><img height="42" src="https://cdn.simpleicons.org/githubactions/2088FF" /></a>
+  <a href="https://huggingface.co/docs/datasets/index"><img height="42" src="https://cdn.simpleicons.org/huggingface/FFD21E" /></a>
+  <a href="https://motherduck.com/"><img height="42" src="https://cdn.simpleicons.org/duckdb/FFF000" /></a>
 </p>
 
 <p align="center">
-  <a href="### 🏗 Architecture: The Two-Stage Landing">Architecture</a> |
-  <a href="#✨-key-features">Key Features</a> |
-  <a href="#project-structure">Project Structure</a> |
-  <a href="#getting-started">Getting Started</a>
-  <a href="#🗺-roadmap">Roadmap</a>
+  <a href="#-architecture-the-two-stage-landing">Architecture</a> |
+  <a href="#-key-features">Key Features</a> |
+  <a href="#-project-structure">Project Structure</a> |
+  <a href="#-getting-started">Getting Started</a>
+  <a href="#-roadmap">Roadmap</a>
 </p>
 
 ---
