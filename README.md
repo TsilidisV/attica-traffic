@@ -1,11 +1,4 @@
-# 🚗 Attica Traffic Analysis
-
-
-<p align="center">
-  <img src="https://cdn.simpleicons.org/rocket/ffffff" width="64" />
-</p>
-
-<h1 align="center">Attica Traffic Analysis</h1>
+<h1 align="center">🚗 Attica Traffic Analysis</h1>
 <p align="center"><b>A high-performance, resilient ELT pipeline <br> designed to capture, archive and analyze daily traffic data from Attica, Greece.</b></p>
 <p align="center">This project implements a Hybrid Medallion Architecture, <br> optimizing for both data fidelity and analytical speed. <br> By separating the "Extract & Load" (Python) from the "Transform" (dbt), <br> the pipeline ensures a robust source of truth <br> while keeping the analytics layer agile.</p>
 
@@ -20,7 +13,7 @@
   <a href="#-architecture-the-two-stage-landing">Architecture</a> |
   <a href="#-key-features">Key Features</a> |
   <a href="#-project-structure">Project Structure</a> |
-  <a href="#-getting-started">Getting Started</a>
+  <a href="#-getting-started">Getting Started</a> | 
   <a href="#-roadmap">Roadmap</a>
 </p>
 
