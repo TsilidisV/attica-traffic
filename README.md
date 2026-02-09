@@ -90,8 +90,8 @@ attica-traffic-datalake/
 
 1. **Clone & Sync:**
 ```bash
-git clone https://github.com/your-username/attica-traffic-datalake.git
-cd attica-traffic-datalake
+git clone https://github.com/TsilidisV/attica-traffic.git
+cd attica-traffic
 uv sync
 ```
 
