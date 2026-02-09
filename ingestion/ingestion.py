@@ -166,35 +166,14 @@ def process_and_upload_chunk(
     if chunk_records:
         df = pd.DataFrame(chunk_records)
 
-        # A. Clean Column Names
-        df.columns = [c.lower().replace(" ", "_") for c in df.columns]
-
-        # B. Parse Dates
-        if "date" in df.columns:
-            df["date"] = pd.to_datetime(df["date"])
-
-        # C. Enforce Numeric Schema (MotherDuck Optimization)
-        # Adjust these lists based on the exact API response columns you wish to type
-        float_cols = ["average_speed"]
-        int_cols = ["vehicle_count", "device_id"]
-
-        for col in float_cols:
-            if col in df.columns:
-                df[col] = pd.to_numeric(df[col], errors="coerce").astype("float32")
-
-        for col in int_cols:
-            if col in df.columns:
-                # Int64 (capital I) allows for NaN values in integer columns
-                df[col] = pd.to_numeric(df[col], errors="coerce").astype("Int64")
-
-        # D. Add Metadata
+        # A. Add Metadata
         # Use timezone-naive UTC timestamp so DuckDB reads it natively as a TIMESTAMP type
         df["ingested_at"] = pd.Timestamp.now(tz="UTC").tz_localize(None)
 
         # Drop the helper injected column
         df = df.drop(columns=["ref_date"], errors="ignore")
 
-        # E. Save Parquet Locally
+        # B. Save Parquet Locally
         # Note: If a chunk spans two months, it saves to the start_date's month folder.
         # MotherDuck's * glob pattern handles this seamlessly on read.
         parquet_file = local_root / get_silver_path(start_date)
