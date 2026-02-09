@@ -2,7 +2,7 @@ import os
 import sys
 import time
 import json
-import logging
+from loguru import logger
 import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -33,12 +33,17 @@ HF_TOKEN = os.environ.get("HF_TOKEN")
 REPO_TYPE = "dataset"
 
 # --- LOGGING SETUP ---
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    datefmt="%H:%M:%S",
+# 1. Console: Nice colors, strict format
+logger.remove()  # Remove default handler
+logger.add(
+    sys.stderr,
+    format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{function}</cyan> - <level>{message}</level>",
 )
-logger = logging.getLogger(__name__)
+
+# 2. File: Save detailed logs (JSON or text) for debugging later
+logger.add(
+    "logs/ingestion_{time}.log", rotation="10 MB", retention="10 days", level="DEBUG"
+)
 
 # CLI Initialization
 app = typer.Typer(help="Attica Traffic Data Pipeline CLI")
@@ -244,6 +249,7 @@ def process_and_upload_chunk(
 
 
 @app.command()
+@logger.catch
 def daily(
     date_override: Optional[str] = typer.Option(
         None, help="Target date in YYYY-MM-DD. Defaults to yesterday."
@@ -281,6 +287,7 @@ def daily(
 
 
 @app.command()
+@logger.catch
 def backfill(
     start_date: str,
     end_date: str,

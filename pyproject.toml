@@ -8,6 +8,7 @@ dependencies = [
     "dotenv>=0.9.9",
     "hf-transfer>=0.1.9",
     "huggingface-hub>=1.4.1",
+    "loguru>=0.7.3",
     "pandas>=3.0.0",
     "pyarrow>=23.0.0",
     "requests>=2.32.5",
