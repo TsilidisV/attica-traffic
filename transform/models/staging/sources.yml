@@ -1,0 +1,22 @@
+version: 2
+
+sources:
+  - name: huggingface
+    description: "Raw traffic data stored as Parquet on Hugging Face Hub."
+    # The 'loader' is just metadata for your documentation
+    loader: python-ingestion-script 
+    
+    tables:
+      - name: raw_traffic
+        description: "External Parquet files on Hugging Face"
+        # Use the 'external_location' property. 
+        # The identifier should just be a simple name for dbt's internal use.
+        identifier: raw_traffic_file
+        meta:
+          external_location: "read_parquet('hf://datasets/bluerRose/attica-traffic-datalake/data/silver/traffic/year=*/*/*.parquet')"
+
+        # Freshness blocks are great for CI/CD alerts
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 36, period: hour}
+        loaded_at_field: ingested_at

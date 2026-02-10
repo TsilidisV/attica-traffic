@@ -1,0 +1,17 @@
+# transform/profiles.yml
+attica_traffic:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      # md: connects to MotherDuck. 
+      # We use the env_var function to keep the token out of Git.
+      # Syntax: md:<database_name>?token=...
+      path: "md:attica_traffic?motherduck_token={{ env_var('MOTHERDUCK_TOKEN') }}"
+      schema: dev
+
+      # Recommended settings for MotherDuck performance
+      threads: 4
+      extensions:
+        - httpfs
+        - parquet

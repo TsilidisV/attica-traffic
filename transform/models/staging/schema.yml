@@ -1,0 +1,45 @@
+version: 2
+
+models:
+  - name: stg_traffic
+    description: "Casted and standardized traffic records from the Attica region API."
+    columns:
+      - name: device_id
+        description: "Unique identifier for the traffic monitoring device."
+        tests:
+          - not_null
+
+      - name: processed_at
+        description: "Timestamp of data processing by the source API."
+        tests:
+          - not_null
+
+      - name: year
+        description: "Partition column: Year of the traffic record."
+      
+      - name: month
+        description: "Partition column: Month of the traffic record."
+
+      - name: ingested_at
+        description: "Timestamp of data ingesting to the data lake "
+
+      - name: counted_cars
+        description: "Total number of vehicles detected during the interval."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                - min_value: 0
+
+      - name: average_speed
+        description: "Average speed of vehicles in KM/H."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                - min_value: 0
+                  max_value: 250 # Filters out sensor errors/extreme outliers
+
+      - name: road_name
+        description: "Name of the road where the device is located (e.g., Leoforos Kifisias)."
+
+      - name: road_info
+        description: "Secondary location details or segment information."

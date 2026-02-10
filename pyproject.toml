@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "dbt-duckdb>=1.10.0",
     "dotenv>=0.9.9",
     "hf-transfer>=0.1.9",
     "huggingface-hub>=1.4.1",
@@ -12,4 +13,5 @@ dependencies = [
     "pandas>=3.0.0",
     "pyarrow>=23.0.0",
     "requests>=2.32.5",
+    "tenacity>=9.1.4",
 ]

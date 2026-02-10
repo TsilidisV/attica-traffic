@@ -1,0 +1,42 @@
+name: Monthly Maintenance (Compaction)
+
+on:
+  schedule:
+    # Runs at 04:11 UTC on the 1st day of every month
+    - cron: '11 4 1 * *'
+  workflow_dispatch:
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      HF_REPO_ID: ${{ secrets.HF_REPO_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Sync dependencies
+        run: uv sync --frozen
+
+      - name: Calculate Previous Month
+        id: date
+        run: |
+          # Calculate Year and Month for the PREVIOUS month
+          # (e.g., if today is March 1st, this returns February)
+          echo "YEAR=$(date -d 'last month' +'%Y')" >> $GITHUB_OUTPUT
+          echo "MONTH=$(date -d 'last month' +'%m')" >> $GITHUB_OUTPUT
+
+      - name: Run Compaction Job
+        run: |
+          echo "Running maintenance for ${{ steps.date.outputs.YEAR }}-${{ steps.date.outputs.MONTH }}..."
+          
+          # 'uv run' executes the script using the correct virtualenv
+          uv run python ingestion/ingestion.py maintenance \
+            ${{ steps.date.outputs.YEAR }} \
+            ${{ steps.date.outputs.MONTH }}
