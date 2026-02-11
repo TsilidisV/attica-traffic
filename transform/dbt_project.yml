@@ -20,9 +20,9 @@ clean-targets:
 models:
   attica_traffic:
     staging:
-      +materialized: view      # Staging should always be views
+      +materialized: table      # We materialize as tables to download data once and stop hitting the HF API.
     intermediate:
-      +materialized: ephemeral
+      +materialized: view
     marts:
       +materialized: table     # Marts should be physical tables
       reporting:

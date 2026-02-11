@@ -39,7 +39,7 @@ models:
                   max_value: 250 # Filters out sensor errors/extreme outliers
 
       - name: road_name
-        description: "Name of the road where the device is located (e.g., Leoforos Kifisias)."
+        description: "Name of the road where the device is located (e.g., Kifisias)."
 
       - name: road_info
         description: "Secondary location details or segment information."

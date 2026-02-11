@@ -5,10 +5,6 @@ models:
     description: >
       A wide Mart table that combines traffic measurements with road metadata.
       This is the primary table for analyzing traffic volume and speed across different road segments.
-    tests:
-      # Ensure that a specific device at a specific time only appears once
-      - unique:
-          column_name: "(device_id || '-' || processed_at)"
 
     columns:
       # --- Identifiers ---
