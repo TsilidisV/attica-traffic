@@ -1,0 +1,49 @@
+version: 2
+
+models:
+  - name: mrt_traffic_road
+    description: >
+      A wide Mart table that combines traffic measurements with road metadata.
+      This is the primary table for analyzing traffic volume and speed across different road segments.
+    tests:
+      # Ensure that a specific device at a specific time only appears once
+      - unique:
+          column_name: "(device_id || '-' || processed_at)"
+
+    columns:
+      # --- Identifiers ---
+      - name: device_id
+        description: "Unique identifier for the traffic sensor/device."
+        tests:
+          - not_null
+
+      # --- Timestamps ---
+      - name: processed_at
+        description: "The specific timestamp when the traffic measurement was recorded."
+
+      - name: processed_year
+        description: "Year extracted from processed_at (Integer)."
+      
+      - name: processed_month
+        description: "Month extracted from processed_at (Integer 1-12)."
+
+      - name: processed_day
+        description: "Day of week extracted from processed_at (String Monday-Sunday)."
+
+      - name: processed_hour
+        description: "Hour of the day extracted from processed_at (Integer 0-23)."
+
+      - name: ingested_at
+        description: "Audit timestamp indicating when this record was loaded into the data lake."
+
+      # --- Traffic Metrics ---
+      - name: counted_cars
+        description: "The number of cars counted by the sensor during the reporting interval."
+
+
+      - name: average_speed
+        description: "The average speed (km/h) of cars passing the sensor."
+
+      # --- Context ---
+      - name: road_name
+        description: "The common name of the road where the sensor is located (e.g., KIFISIAS)."

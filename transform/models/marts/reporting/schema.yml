@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: fct_hourly_road
+    description: >
+      An aggregated fact table that summarizes traffic metrics by road and hour of day.
+      Useful for identifying daily traffic patterns (e.g., Rush Hour vs. Off-Peak) across different roads.
+    tests:
+      # The grain of this table is one row per road per hour (0-23).
+      - unique:
+          column_name: "(road_name || '-' || processed_hour)"
+
+    columns:
+      # --- Dimensions ---
+      - name: road_name
+        description: "The name of the road segment being analyzed."
+
+      - name: processed_hour
+        description: "The hour of the day (0-23) for the aggregation window."
+
+      # --- Metrics ---
+      - name: avg_average_speed
+        description: "The average speed (km/h) across all sensors on this road during this hour."
+
+      - name: avg_counted_cars
+        description: "The average volume of cars detected by sensors on this road during this hour."

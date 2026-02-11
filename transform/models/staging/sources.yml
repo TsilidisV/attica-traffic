@@ -13,7 +13,12 @@ sources:
         # The identifier should just be a simple name for dbt's internal use.
         identifier: raw_traffic_file
         meta:
-          external_location: "read_parquet('hf://datasets/bluerRose/attica-traffic-datalake/data/silver/traffic/year=*/*/*.parquet')"
+          external_location: |
+            {% if target.name == 'dev' %}
+            read_parquet('hf://datasets/bluerRose/attica-traffic-datalake/data/year=2025/month=*/*.parquet')
+            {% else %}
+            read_parquet('hf://datasets/bluerRose/attica-traffic-datalake/data/year=*/month=*/*.parquet')
+            {% endif %}
 
         # Freshness blocks are great for CI/CD alerts
         freshness:

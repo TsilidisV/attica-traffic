@@ -1,5 +1,5 @@
 # transform/dbt_project.yml
-name: 'attica_traffic_transform'
+name: 'attica_traffic'
 version: '1.0.0'
 config-version: 2
 
@@ -19,11 +19,11 @@ clean-targets:
 # Standard Medallion Materialization
 models:
   attica_traffic:
-
     staging:
-      +schema: staging
       +materialized: view      # Staging should always be views
     intermediate:
       +materialized: ephemeral
     marts:
       +materialized: table     # Marts should be physical tables
+      reporting:
+        +materialized: table

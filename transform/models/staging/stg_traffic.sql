@@ -9,8 +9,8 @@ renamed_and_typed as (
 
         -- timestamps
         cast(appprocesstime as TIMESTAMP) as processed_at,
-        cast(year as SMALLINT) as year,
-        cast(month as SMALLINT) as month,
+        cast(year as SMALLINT) as processed_year,
+        cast(month as SMALLINT) as processed_month,
         ingested_at,
         
         -- traffic info
@@ -25,8 +25,3 @@ renamed_and_typed as (
 )
 
 select * from renamed_and_typed
-
--- Sample records for dev environment using deterministic date filter
-{% if target.name == 'dev' %}
-where processed_at >= '2026-01-01'
-{% endif %}

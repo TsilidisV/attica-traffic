@@ -5,13 +5,16 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "altair<5",
     "dbt-duckdb>=1.10.0",
     "dotenv>=0.9.9",
     "hf-transfer>=0.1.9",
     "huggingface-hub>=1.4.1",
     "loguru>=0.7.3",
-    "pandas>=3.0.0",
+    "pandas<3",
+    "plotly>=6.5.2",
     "pyarrow>=23.0.0",
     "requests>=2.32.5",
+    "streamlit>=1.35.0",
     "tenacity>=9.1.4",
 ]

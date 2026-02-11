@@ -12,7 +12,8 @@ jobs:
     env:
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
       HF_REPO_ID: ${{ secrets.HF_REPO_ID }}
-      
+      MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
+
     steps:
       - uses: actions/checkout@v4
       
@@ -22,5 +23,10 @@ jobs:
       - name: Sync dependencies
         run: uv sync --frozen
         
-      - name: 1. Ingest Data
+      - name: Ingest Data
         run: uv run python ingestion/ingestion.py ingest-daily
+
+      - name: Run dbt Transformations
+        run: |
+          uv run dbt deps --project-dir transform
+          uv run dbt build --project-dir transform --profiles-dir transform --target prod
