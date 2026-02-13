@@ -66,7 +66,7 @@ day_order = [
 #
 #
 ## Render interactive chart
-# st.plotly_chart(fig, use_container_width=True)
+# st.plotly_chart(fig, width='stretch')
 #
 #
 # day_order = [
@@ -120,4 +120,4 @@ text = base.mark_text().encode(
 # 4. Combine and Display
 chart = (heatmap + text).properties(title=f"Speed heatmap for {selected_region}")
 
-st.altair_chart(chart, use_container_width=True)
+st.altair_chart(chart, width='stretch')

@@ -68,11 +68,11 @@ Roads where travel time is unpredictable (sometimes fast, sometimes gridlocked).
 """
 
 # Render interactive chart
-st.altair_chart(chart, use_container_width=True)
+st.altair_chart(chart, width='stretch')
 
 """
 ## Top 20 Low-Volatility Roads
 Roads that are consistently slow or consistently fast.
 """
 
-st.altair_chart(chart_tail, use_container_width=True)
+st.altair_chart(chart_tail, width='stretch')
