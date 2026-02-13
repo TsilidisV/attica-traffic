@@ -9,6 +9,7 @@ renamed_and_typed as (
 
         -- timestamps
         cast(appprocesstime as TIMESTAMP) as processed_at,
+        cast(appprocesstime as DATE) as processed_date,
         cast(year as SMALLINT) as processed_year,
         cast(month as SMALLINT) as processed_month,
         ingested_at,
@@ -25,3 +26,9 @@ renamed_and_typed as (
 )
 
 select * from renamed_and_typed
+
+-- Deduplicate: if multiple measurements match (same device_id, processed_at), keep first
+qualify row_number() over(
+    partition by device_id, processed_at
+    order by processed_at
+) = 1

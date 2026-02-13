@@ -27,10 +27,12 @@
 
 ## 🏗 Architecture
 
-This project uses a "Write Daily, Compact Monthly" strategy to balance data freshness with storage efficiency and API rate limits.
+This project uses a "Write Daily, Compact Monthly" medallion architecture to balance data freshness with storage efficiency and API rate limits.
 
-1. **Bronze (Raw Audit):** API responses are saved as **JSON** exactly as received. This preserves 100% of the source fidelity for future debugging or re-processing.
-2. **Silver (Structured Landing):** Data is deduplicated, timestamped with metadata, and converted to **Parquet**. This "Light Silver" layer provides a structured, high-performance contract for **MotherDuck**.
+1. *Bronze*: Through **Python** and *orchestrated* by **Github Actions**, API responses are timestamped with metadata, converted to *Parquet*, and merged into monthly files to create a stable, immutable foundation for all downstream processing, while avoiding the *Small File Problem* and API rate limits of the project's *Data Lake*, i.e., **HuggingFace**.
+2. *Silver*: Using **dbt** (also orchestrated by GitHub Actions), the raw data is typecasted, renamed for clarity, and deduplicated based on business logic. This layer creates a clean, consistent, and high-performance foundation inside our Data Warehouse, i.e, **MotherDuck**.
+3. *Gold*: Cleaned silver models are joined and aggregated into final mart tables that are optimized specifically for reporting and high-level analytics, which are then served directly to the end-user via a **Streamlit** dashboard.
+
 
 ```mermaid
 graph LR
@@ -123,8 +125,7 @@ cp .env.example .env
 ```
 
 
-
-### Running the Pipeline
+3. Running the Pipeline
 
 ```bash
 # Ingest yesterday's data (Standard Daily Run)
@@ -133,8 +134,14 @@ uv run python ingestion/ingestion.py ingest-daily
 # Ingest a specific date
 uv run python ingestion/ingestion.py ingest-daily --date 2024-05-20
 
-# Historical Backfill (Processes in 7-day chunks)
-uv run python ingestion/ingestion.py backfill 2024-01-01 2024-04-30
+# Historical Backfill
+uv run python ingestion/ingestion.py backfill 2020-11-05 2024-04-30
+
+# Run dbt and install packages
+uv run python -c "import dotenv; dotenv.load_dotenv(); import os; os.system('dbt deps --project-dir transform --profiles-dir transform ')"
+
+# Run dbt and build models
+uv run python -c "import dotenv; dotenv.load_dotenv(); import os; os.system('dbt build --project-dir transform --profiles-dir transform --target prod')"
 ```
 
 ---
@@ -142,6 +149,6 @@ uv run python ingestion/ingestion.py backfill 2024-01-01 2024-04-30
 ## 🗺 Roadmap
 
 * [x] **Phase 1:** Resilient EL Pipeline (Python + GitHub Actions)
-* [ ] **Phase 2:** Analytics Engineering (dbt + MotherDuck)
+* [x] **Phase 2:** Analytics Engineering (dbt + MotherDuck)
 * [ ] **Phase 3:** Interactive Visualizations (Streamlit)
 

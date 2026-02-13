@@ -1,27 +1,24 @@
 [theme]
 # The primary accent color for interactive elements (buttons, sliders, focused inputs)
-primaryColor = "#00D4FF"
+primaryColor = "#a737a1"
 
 # The main background color (Deep Blue-Grey)
-backgroundColor = "#0E1117"
+backgroundColor = "#15112b"
 
 # The background color for the sidebar and widgets (Slightly lighter than main)
-secondaryBackgroundColor = "#1A1D24"
+secondaryBackgroundColor = "#252042"
 
 # Text color (Off-white for readability without eye strain)
 textColor = "#FAFAFA"
 
 # Font family (Sans serif is best for clean digital dashboards)
-font = "sans serif"
+font = "Nunito:https://fonts.googleapis.com/css2?family=Nunito&display=swap"
 
 [client]
 # Hides the "Made with Streamlit" footer for a cleaner look
 showErrorDetails = false
 toolbarMode = "viewer" # Hides the developer options in the upper right
 
-[server]
-# maximizing upload size can prevent errors with large datasets
-maxUploadSize = 200
 
 [browser]
 # Sets the tab color in the browser to match your primary color

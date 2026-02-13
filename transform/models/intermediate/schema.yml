@@ -25,7 +25,7 @@ models:
         description: Day name (e.g., Monday) derived from processed_at.
 
       - name: processed_hour
-        description: Hour of day extracted from processed_at (0-23).
+        description: Hour of day extracted from processed_at (00:00 - 23:00).
 
       - name: ingested_at
         description: Timestamp when the raw record was ingested into the system.

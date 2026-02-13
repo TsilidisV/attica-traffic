@@ -1,8 +1,7 @@
 SELECT
     road_name,
-    processed_hour,
     SUM(average_speed * counted_cars * 1.0) / NULLIF(SUM(counted_cars), 0) AS weighted_avg_speed,
-    AVG(counted_cars) as avg_counted_cars
+    stddev(average_speed) as std_average_speed
 FROM {{ ref('mrt_traffic_road') }}
-GROUP BY road_name, processed_hour
-ORDER BY road_name, processed_hour
+GROUP BY road_name
+ORDER BY std_average_speed DESC

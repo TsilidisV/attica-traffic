@@ -4,10 +4,11 @@ select
 
     -- timestamps
     processed_at,
+    processed_date,
     processed_year,
     processed_month,
     dayname(processed_at) as "processed_day",
-    hour(processed_at) as "processed_hour",
+    strftime(processed_at, '%H:%M')  as "processed_hour",
     ingested_at,
         
     -- traffic info
@@ -15,3 +16,4 @@ select
     average_speed,
 
 from {{ ref("stg_traffic") }}
+

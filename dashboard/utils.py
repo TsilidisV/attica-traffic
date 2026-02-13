@@ -15,6 +15,45 @@ def get_traffic_data():
     # Simple aggregation query (replace with your Mart later)
     query = """
         SELECT *
-        FROM attica_traffic.dev.fct_hourly_road
+        FROM attica_traffic.prod.fct_hourly_road
     """
     return con.execute(query).df()
+
+@st.cache_data(ttl=3600)
+def get_hourly_daily_data():
+    con = get_connection()
+    # Simple aggregation query (replace with your Mart later)
+    query = """
+        SELECT *
+        FROM attica_traffic.prod.fct_hourly_daily_road_heatmap
+    """
+    return con.execute(query).df()
+
+@st.cache_data(ttl=3600)
+def get_volatility_data():
+    con = get_connection()
+    # Simple aggregation query (replace with your Mart later)
+    query = """
+        SELECT *
+        FROM attica_traffic.prod.fct_road_reliability
+    """
+    return con.execute(query).df()
+
+
+@st.cache_data(ttl=3600)
+def get_homepage_data():
+    con = get_connection()
+    
+    # Map your desired output keys to the database table names
+    sources = {
+        "busiest_times": "fct_last_30_days_busiest_times",
+        "daily_speed_count":   "fct_last_30_days_daily_speed_count",
+        "last_kpi":      "fct_last_30_days_KPI",
+        "previous_kpi":  "fct_previous_30_days_KPI",
+    }
+
+    # Dynamically fetch all tables in one pass
+    return {
+        key: con.execute(f"SELECT * FROM attica_traffic.prod.{table}").df()
+        for key, table in sources.items()
+    }

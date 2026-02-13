@@ -1,13 +1,12 @@
 import streamlit as st
 
-# --- PAGE CONFIG ---
-st.set_page_config(
-    page_title="Attica Traffic Monitor",
-    page_icon="🚗",
-    layout="wide"
-)
+home = st.Page("pages/home.py", title="Home", icon="🏠", default=True)
+heatmap = st.Page("pages/heatmap.py", title="Spatiotemporal Heatmap", icon="🔥")
+speed_count = st.Page("pages/speed_count.py", title="Speed vs Vehicle Count", icon="🏃")
+barplot = st.Page("pages/barplot.py", title="Reliability Ranking", icon="📊")
 
-st.markdown("Real-time traffic patterns from the **Attica Region** data lake.")
+# Create navigation structure (Grouped)
+pg = st.navigation([home, heatmap, speed_count, barplot])
 
-st.title("Data")
-st.write("Upload or preview data here.")
+# Run the navigation
+pg.run()

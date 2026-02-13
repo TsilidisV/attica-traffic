@@ -4,6 +4,7 @@ select
 
     -- timestamps
     m.processed_at,
+    m.processed_date,
     m.processed_year,
     m.processed_month,
     m.processed_day,
@@ -20,3 +21,4 @@ select
 from {{ ref("fct_measurements") }} as m
 LEFT JOIN {{ ref("dim_roads") }} as r
     ON m.device_id = r.device_id
+ORDER BY m.processed_at, r.road_name
