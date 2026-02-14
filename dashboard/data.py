@@ -44,7 +44,7 @@ def get_heatmap_last_30():
     """
     return con.execute(query).df()
 
-
+@st.cache_data(ttl=3600)
 def get_spatiotemporal():
     con = get_connection()
 
