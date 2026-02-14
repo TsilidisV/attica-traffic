@@ -21,4 +21,5 @@ select
 from {{ ref("fct_measurements") }} as m
 LEFT JOIN {{ ref("dim_roads") }} as r
     ON m.device_id = r.device_id
+WHERE m.average_speed > 1
 ORDER BY m.processed_at, r.road_name

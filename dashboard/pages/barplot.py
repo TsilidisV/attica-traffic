@@ -2,77 +2,30 @@
 import streamlit as st
 
 
-import altair as alt
-import plotly.express as px
-from utils import get_volatility_data
-
+from data import get_volatility_data
+from figures import get_bar_chart
 
 with st.spinner("Fetching data from MotherDuck..."):
     df = get_volatility_data()
 
-chart = (
-    alt.Chart(df.head(20))
-    .mark_bar()
-    .encode(
-        # X-axis: The length of the bar (std_average_speed)
-        x=alt.X(
-            "std_average_speed",
-            title="Standard deviation of the weighted average speed",
-        ),
-        # Y-axis: The categorical labels.
-        # sort='-x' ensures the longest bars appear at the top.
-        y=alt.Y("road_name", sort="-x", title="Road name"),
-        # Color: The continuous scale based on weighted_avg_speed
-        color=alt.Color(
-            "weighted_avg_speed",
-            scale=alt.Scale(scheme="redyellowgreen"),
-            title="Speed",
-        ),
-        # Tooltip: Add hover info similar to Plotly
-        tooltip=["road_name", "std_average_speed", "weighted_avg_speed"],
-    )
-)
 
-
-chart_tail = (
-    alt.Chart(df.tail(20))
-    .mark_bar()
-    .encode(
-        # X-axis: The length of the bar (std_average_speed)
-        x=alt.X(
-            "std_average_speed",
-            title="Standard deviation of the weighted average speed",
-        ),
-        # Y-axis: The categorical labels.
-        # sort='-x' ensures the longest bars appear at the top.
-        y=alt.Y("road_name", sort="-x", title="Road name"),
-        # Color: The continuous scale based on weighted_avg_speed
-        color=alt.Color(
-            "weighted_avg_speed",
-            scale=alt.Scale(scheme="redyellowgreen"),
-            title="Speed",
-        ),
-        # Tooltip: Add hover info similar to Plotly
-        tooltip=["road_name", "std_average_speed", "weighted_avg_speed"],
-    )
-)
 
 
 """
-# 🚗 Road Reliability Ranking
+# Road Reliability Ranking 🚐
 
 The standard deviation of the weighted average speed is calculated.
 
-## Top 20 High-Volatility Roads
-Roads where travel time is unpredictable (sometimes fast, sometimes gridlocked).
+Roads with a high standard deviation are unpredictable (sometimes fast, sometimes gridlocked).
+On the other hand, roads with a low standard deviation are consistently slow or consistently fast.
 """
 
-# Render interactive chart
+selected_roads = st.multiselect(
+    "Select roads:", options=df["road_name"].unique()
+)
+
+filtered_df = df[df["road_name"].isin(selected_roads)] if selected_roads else df
+chart = get_bar_chart(filtered_df)
+
 st.altair_chart(chart, width='stretch')
 
-"""
-## Top 20 Low-Volatility Roads
-Roads that are consistently slow or consistently fast.
-"""
-
-st.altair_chart(chart_tail, width='stretch')

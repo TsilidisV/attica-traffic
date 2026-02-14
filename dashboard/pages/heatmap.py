@@ -1,18 +1,15 @@
-# pages/1_Data.py
-import altair as alt
-
-# import plotly.express as px
 import streamlit as st
-from utils import get_hourly_daily_data
+from data import get_spatiotemporal
+from figures import get_heatmap
 
 with st.spinner("Fetching data from MotherDuck..."):
-    df = get_hourly_daily_data()
+    df = get_spatiotemporal()
 
 
-st.title("🚗 Spatio-Temporal Heatmap")
+st.title("Spatio-Temporal Heatmap 🚗")
 st.markdown(
-    "Commuter roads, like Κηφισίας, peak at 08:00 and 18:00 on weekdays."
-    "Nightlife/Entertainment roads, like Αχίλλεως , might peak later in the evening on Fridays/Saturdays"
+    "Commuter roads, like Κηφισίας, peak at 08:00 and 18:00 on weekdays. "
+    "Nightlife/Entertainment roads, like Ιερά Οδός, might peak later in the evening on Fridays/Saturdays"
 )
 
 
@@ -22,16 +19,10 @@ selected_region = st.selectbox("Select a road:", options=df["road_name"].unique(
 # --- 3. Filter Data ---
 subset_df = df[df["road_name"] == selected_region]
 
-# Make days appear in the correct order
-day_order = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-]
+
+chart = get_heatmap(subset_df, selected_region)
+st.altair_chart(chart, width="stretch")
+
 
 ## --- 4. Prepare Data (Pivot) ---
 ## We pivot to create the grid matrix (X vs Y)
@@ -78,46 +69,3 @@ day_order = [
 #    "Saturday",
 #    "Sunday",
 # ]
-
-# --- Plotting with Altair ---
-
-# 1. Define the Base Chart
-# We group by Day (x) and Hour (y).
-base = alt.Chart(subset_df).encode(
-    x=alt.X(
-        "processed_day",
-        sort=day_order,
-        title="Day",
-        # Rotate labels by -45 degrees
-        axis=alt.Axis(labelAngle=-45, labelOverlap=False),
-    ),
-    y=alt.Y("processed_hour", title="Hour", sort="descending"),
-)
-
-# 2. Create the Heatmap (Rectangles)
-# We aggregate the mean speed automatically here.
-heatmap = base.mark_rect().encode(
-    color=alt.Color(
-        "weighted_avg_speed",
-        aggregate="mean",
-        scale=alt.Scale(scheme="redyellowgreen"),
-        title="Average Speed",
-    ),
-    tooltip=[
-        "processed_day",
-        "processed_hour",
-        alt.Tooltip("weighted_avg_speed", aggregate="mean", format=".2f"),
-    ],
-)
-
-# 3. Create the Text Labels (equivalent to text_auto=True)
-text = base.mark_text().encode(
-    text=alt.Text("weighted_avg_speed", aggregate="mean", format=".1f"),
-    # Optional: Adjust text color based on background for readability
-    # color=alt.value('black')
-)
-
-# 4. Combine and Display
-chart = (heatmap + text).properties(title=f"Speed heatmap for {selected_region}")
-
-st.altair_chart(chart, width='stretch')

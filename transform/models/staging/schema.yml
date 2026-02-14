@@ -26,16 +26,18 @@ models:
       - name: counted_cars
         description: "Total number of vehicles detected during the interval."
         tests:
+          - not_null
           - dbt_utils.accepted_range:
               arguments:
-                - min_value: 0
+                - min_value: 1
 
       - name: average_speed
         description: "Average speed of vehicles in KM/H."
         tests:
+          - not_null
           - dbt_utils.accepted_range:
               arguments:
-                - min_value: 0
+                - min_value: 1
                   max_value: 250 # Filters out sensor errors/extreme outliers
 
       - name: road_name
