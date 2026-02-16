@@ -1,4 +1,11 @@
 <h1 align="center">🚗 Attica Traffic Analysis</h1>
+
+<p align="center">
+  <i>Which is the busiest time slot?</i> • <i>Does total vehicle volume correlate with average network speed?</i> • <br>
+  <i>Which are the most and least volatile roads?</i>
+  <br>
+</p>
+
 <p align="center"><b>A high-performance, resilient ELT pipeline <br> designed to capture, archive and analyze traffic data from Attica, Greece.</b></p>
 <p align="center">This project implements a Medallion Architecture, <br> optimizing for both data fidelity and analytical speed. <br> By separating the "Extract & Load" (Python) from the "Transform" (dbt), <br>both orchestrated by Github Actions, <br> the pipeline ensures a robust source of truth <br> while keeping the analytics layer agile. <br> Analytics dashboards are presented through Streamlit.</p>
 
@@ -54,9 +61,9 @@ graph LR
 
 ## ✨ Key Features
 
-### 1. Resilience-First Ingestion
+### 1. Resilience Ingestion
 
-* **Exponential Backoff:** Built-in retry logic (`1s, 2s, 4s...`) using `urllib3` to handle transient API instability.
+* **Exponential Backoff:** Built-in exponential retry logic using `tenacity` to handle API instability.
 * **Atomic Transactions:** Ingests data to a local staging area before performing a bulk upload to Hugging Face, ensuring no partial or corrupted files land in the lake.
 * **CI/CD Awareness:** The `daily` command triggers a **Red 🔴 Alert** (Exit Code 1) on missing data, while the `backfill` command is fault-tolerant for historical recovery.
 
@@ -78,9 +85,16 @@ Hugging Face (and many data lakes) struggles with thousands of tiny files. To so
 This project uses `loguru` for professional-grade logging:
 
 * **Formatted Console Logs:** Color-coded status updates for real-time monitoring.
-* **File Rotation:** Logs are kept for **10 days** and rotated every **10 MB** to manage disk space.
+* **File Rotation:** Logs are rotated every **10 MB** to manage disk space.
 * **GitHub Actions Integration:** Full traceback capture allows for rapid debugging of pipeline failures directly from the Actions UI.
 
+### 5. dbt Tests
+
+This project uses `loguru` for professional-grade logging:
+
+* **Formatted Console Logs:** Color-coded status updates for real-time monitoring.
+* **File Rotation:** Logs are rotated every **10 MB** to manage disk space.
+* **GitHub Actions Integration:** Full traceback capture allows for rapid debugging of pipeline failures directly from the Actions UI.
 ---
 
 ## 📂 Project Structure

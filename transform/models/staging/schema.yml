@@ -4,6 +4,12 @@ models:
   - name: stg_traffic
     description: "Casted and standardized traffic records from the Attica region API."
     columns:
+      - name: traffic_id  # <--- Test this real column
+        description: "Primary key: Composite of device_id and processed_at"
+        tests:
+          - unique
+          - not_null
+          
       - name: device_id
         description: "Unique identifier for the traffic monitoring device."
         tests:

@@ -1,0 +1,71 @@
+version: 2
+
+models:
+  - name: fct_last_30_days_daily_speed_count
+    description: >
+      Daily aggregation of traffic volume and speed for trend analysis over the last 30 days.
+      Useful for spotting daily traffic patterns (e.g., weekends vs. weekdays).
+    columns:
+      - name: processed_date
+        description: "The calendar date for the daily aggregation."
+        tests:
+          - unique
+          - not_null
+      
+      - name: total_counted_cars
+        description: "Total volume of cars detected across all sensors for this day."
+        tests:
+          - not_null
+
+      - name: weighted_avg_speed
+        description: >
+          The volume-weighted average speed for the day.
+          Calculation: `SUM(speed * cars) / SUM(cars)`. 
+          This prevents low-volume roads (nighttime) from skewing the average.
+        tests:
+          - not_null
+
+  - name: fct_last_30_days_KPI
+    description: >
+      "Headline" KPIs for the current 30-day period. 
+      Returns a single row summary intended for the top of a dashboard (Scorecard).
+    columns:
+      - name: weighted_avg_speed
+        description: "Global weighted average speed (km/h) for the entire 30-day period."
+        tests:
+          - not_null
+
+      - name: sum_counted_cars
+        description: "Total traffic volume (number of cars) observed over the last 30 days."
+
+      - name: distinct_roads_count
+        description: "The number of unique roads that reported data in this period."
+
+      - name: distinct_devices_count
+        description: "The number of unique sensors that were active and reporting."
+
+  - name: fct_previous_30_days_KPI
+    description: >
+      "Headline" KPIs for the *previous* 30-day period (Days 31-60).
+      
+      Use Case: Calculating period-over-period growth (e.g., 'Traffic is up 5% vs last month').
+    columns:
+      - name: weighted_avg_speed
+        description: "Global weighted average speed (km/h) for the previous period."
+
+      - name: sum_counted_cars
+        description: "Total traffic volume for the previous period."
+
+  - name: fct_last_30_days_busiest_times
+    description: >
+      Identifies the extreme outliers: the specific day and hour with the 
+      global MINIMUM (worst traffic) and MAXIMUM (freest traffic) speeds.
+    columns:
+      - name: processed_day
+        description: "The day of the week (e.g., 'Monday') when the extreme occurred."
+      
+      - name: processed_hour
+        description: "The hour of the day (HH:MM) when the extreme occurred."
+      
+      - name: weighted_avg_speed
+        description: "The calculated weighted average speed at this specific peak/trough moment."

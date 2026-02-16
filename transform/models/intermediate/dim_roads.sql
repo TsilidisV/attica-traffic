@@ -1,4 +1,4 @@
-select distinct
+select
     device_id,
     CASE 
         WHEN road_name = 'Β. ΣΟΦΙΑΣ' THEN 'ΒΑΣ. ΣΟΦΙΑΣ'
@@ -21,5 +21,13 @@ select distinct
         WHEN road_name = 'Λ. ΣΥΓΓΡΟΥ' THEN 'ΣΥΓΓΡΟΥ'
         ELSE road_name 
     END AS road_name,
-    road_info
+    road_info,
+    ingested_at
 from {{ ref("stg_traffic") }}
+
+-- More robost deduplication in case the same device_id reports 
+-- different roads at different times. It keeps the newest one.
+qualify row_number() over (
+    partition by device_id
+    order by ingested_at desc
+) = 1

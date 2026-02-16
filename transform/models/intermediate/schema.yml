@@ -10,6 +10,10 @@ models:
         description: Unique identifier for the traffic device.
         tests:
           - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_roads')
+                field: device_id
 
       - name: processed_at
         description: Timestamp when the record was processed.

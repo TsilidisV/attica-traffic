@@ -21,7 +21,7 @@ from tenacity import (
 # --- Configuration ---
 load_dotenv()
 
-# Critical optimizations for Hugging Face Hub uploads
+# Optimizations for Hugging Face Hub uploads
 os.environ["HF_HUB_HTTP_TIMEOUT"] = "300"
 os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "1"
 

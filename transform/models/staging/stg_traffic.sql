@@ -3,7 +3,10 @@ with source as (
 ),
 
 renamed_and_typed as (
-    select
+    select       
+        -- primary key
+        deviceid || '-' || cast(appprocesstime as VARCHAR) as traffic_id,
+
         -- identifiers
         cast(deviceid as VARCHAR) as device_id,
 
@@ -20,7 +23,7 @@ renamed_and_typed as (
         
         -- road info
         road_name,
-        road_info
+        road_info,
 
     from source
 )

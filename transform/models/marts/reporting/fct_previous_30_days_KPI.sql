@@ -10,5 +10,5 @@ SELECT
     COUNT(DISTINCT device_id) AS distinct_devices_count
 FROM {{ ref("mrt_traffic_road") }}
 CROSS JOIN max_date
-WHERE processed_at BETWEEN (max_date.latest_date - 60) 
-    AND (max_date.latest_date - 30)
+WHERE processed_at >= (max_date.latest_date - 60)
+  AND processed_at <  (max_date.latest_date - 30)
