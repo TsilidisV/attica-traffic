@@ -88,13 +88,19 @@ This project uses `loguru` for professional-grade logging:
 * **File Rotation:** Logs are rotated every **10 MB** to manage disk space.
 * **GitHub Actions Integration:** Full traceback capture allows for rapid debugging of pipeline failures directly from the Actions UI.
 
-### 5. dbt Tests
+### 5. Logging
 
 This project uses `loguru` for professional-grade logging:
 
 * **Formatted Console Logs:** Color-coded status updates for real-time monitoring.
 * **File Rotation:** Logs are rotated every **10 MB** to manage disk space.
 * **GitHub Actions Integration:** Full traceback capture allows for rapid debugging of pipeline failures directly from the Actions UI.
+
+### 6. Transformation Process
+
+* **Robust Data Cleaning:** The pipeline implements a Medallion architecture that standardizes inconsistent road names and deduplicates raw sensor data to ensure a reliable single source of truth.
+* **Accurate Aggregation Logic:** It calculates volume-weighted average speeds rather than simple averages, preventing low-traffic outliers from skewing the analysis of road conditions.
+* **Dynamic Reporting Windows:** The reporting models utilize dynamic date filtering to automatically generate KPIs for the most recent 30 days of available data, ensuring resilience against pipeline delays. 
 ---
 
 ## 📂 Project Structure
@@ -103,9 +109,16 @@ This project uses `loguru` for professional-grade logging:
 attica-traffic-datalake/
 ├── .github/workflows/
 │   └── daily_pipeline.yml    # Daily Cron & CI/CD logic
+├── dashboard/                # Streamlit dashboard
 ├── ingestion/
-│   ├── logs/                 # Structured, rotated logs
 │   └── ingestion.py          # The EL script
+├── transform/                # dbt loading, transformations and tests
+    └── models                # Models with medallion architecture
+        ├── staging
+        ├── intermediate
+        └── marts
+            └── reporting
+├── logs/                     # Structured, rotated logs
 ├── .env.example              # Secret template (HF_TOKEN)
 ├── pyproject.toml            # Centralized 'uv' dependencies
 ├── uv.lock                   # Deterministic environment
@@ -156,6 +169,9 @@ uv run python -c "import dotenv; dotenv.load_dotenv(); import os; os.system('dbt
 
 # Run dbt and build models
 uv run python -c "import dotenv; dotenv.load_dotenv(); import os; os.system('dbt build --project-dir transform --profiles-dir transform --target prod')"
+
+# Run the streamlit dashboard
+uv run streamlit run dashboard/app.py
 ```
 
 ---
@@ -164,5 +180,5 @@ uv run python -c "import dotenv; dotenv.load_dotenv(); import os; os.system('dbt
 
 * [x] **Phase 1:** Resilient EL Pipeline (Python + GitHub Actions)
 * [x] **Phase 2:** Analytics Engineering (dbt + MotherDuck)
-* [ ] **Phase 3:** Interactive Visualizations (Streamlit)
+* [x] **Phase 3:** Interactive Visualizations (Streamlit)
 
