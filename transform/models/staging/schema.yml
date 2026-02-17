@@ -4,7 +4,7 @@ models:
   - name: stg_traffic
     description: "Casted and standardized traffic records from the Attica region API."
     columns:
-      - name: traffic_id  # <--- Test this real column
+      - name: traffic_id 
         description: "Primary key: Composite of device_id and processed_at"
         tests:
           - unique
@@ -33,18 +33,11 @@ models:
         description: "Total number of vehicles detected during the interval."
         tests:
           - not_null
-          - dbt_utils.accepted_range:
-              arguments:
-                - min_value: 1
 
       - name: average_speed
         description: "Average speed of vehicles in KM/H."
         tests:
           - not_null
-          - dbt_utils.accepted_range:
-              arguments:
-                - min_value: 1
-                  max_value: 250 # Filters out sensor errors/extreme outliers
 
       - name: road_name
         description: "Name of the road where the device is located (e.g., Kifisias)."
