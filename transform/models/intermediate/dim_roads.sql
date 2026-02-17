@@ -25,7 +25,7 @@ select
     ingested_at
 from {{ ref("stg_traffic") }}
 
--- More robost deduplication in case the same device_id reports 
+-- Robust deduplication in case the same device_id reports 
 -- different roads at different times. It keeps the newest one.
 qualify row_number() over (
     partition by device_id

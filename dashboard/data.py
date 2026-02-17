@@ -1,6 +1,7 @@
 # utils.py
 import duckdb
 import streamlit as st
+import pandas as pd
 
 
 # 1. Shared Database Connection
@@ -109,3 +110,34 @@ def get_speed_count():
         ORDER BY road_name, processed_hour
     """
     return con.execute(query).df()
+
+@st.cache_data(ttl=3600)
+def get_health():
+    con = get_connection()
+
+    query = """
+        WITH bad_data as (
+        SELECT *
+        FROM "attica_traffic"."prod"."fct_measurements"
+        )
+        SELECT
+        processed_year, processed_month, 
+        count(*) as readings,
+        count(CASE WHEN is_dead = true THEN 1 END) as dead_count,
+        100 * dead_count / readings as dead_percent,
+        count(CASE WHEN is_ghost_reading = true THEN 1 END) as ghost_count,
+        100 * ghost_count / readings as ghost_percent,
+        count(CASE WHEN is_impossible_speed = true THEN 1 END) as impossible_speed_count,
+        100 * impossible_speed_count / readings as impossible_speed_percent,
+        count(CASE WHEN ingested_at IS NULL THEN 1 END) as missing_reading_count,
+        100 * missing_reading_count / readings as missing_reading_percent
+        FROM bad_data
+        GROUP BY processed_year, processed_month
+        ORDER BY processed_year, processed_month
+    """
+    df = con.execute(query).df()
+    df['date'] = pd.to_datetime(
+    df['processed_year'].astype(str) + '-' + 
+    df['processed_month'].astype(str) + '-01'
+    )
+    return df

@@ -1,6 +1,6 @@
 import figures
 import streamlit as st
-from data import get_heatmap_last_30, get_homepage_kpi, get_volatility_data_last_30
+from data import get_heatmap_last_30, get_homepage_kpi, get_volatility_data_last_30, get_health
 
 with st.spinner("Fetching data from MotherDuck..."):
     data = get_homepage_kpi()
@@ -10,6 +10,9 @@ with st.spinner("Fetching data from MotherDuck..."):
 
 with st.spinner("Fetching data from MotherDuck..."):
     df_vol = get_volatility_data_last_30()
+
+with st.spinner("Fetching data from MotherDuck..."):
+    df_health = get_health()
 
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Attica Traffic Analytics", page_icon="🚗", layout="wide")
@@ -114,3 +117,19 @@ with st.container(horizontal=True, gap="medium", border=True):
         """
         chart_vol_head = figures.get_bar_chart(df_vol.tail(20))
         st.altair_chart(chart_vol_head, width="stretch")
+
+"""
+## Summary of Device Health
+
+The dataset contains two primary sources of bad data:
+1. Dead Readings: Some devices return zero counted cars and zero average speed at all times
+2. Missing Readings: Timeslots that data.gov.gr hosts no data
+
+There's a clear increase in Dead Readings, indicating the necessity for device maintenance.
+
+"""
+
+
+with st.container(border=True):
+    chart = figures.get_stacked_bars(df_health)
+    st.altair_chart(chart, width="stretch")

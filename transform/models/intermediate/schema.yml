@@ -5,6 +5,9 @@ models:
     description: |
       Processed traffic metrics derived from the staging table stg_traffic.
       Contains device identifiers, processing timestamps, and traffic metrics.
+
+      This model is also responsible for identifying data quality issues, including 
+      ghost readings, dead sensors, and physically impossible speed recordings.
     columns:
       - name: device_id
         description: Unique identifier for the traffic device.
@@ -15,36 +18,82 @@ models:
                 to: ref('dim_roads')
                 field: device_id
 
+      # --- Timestamps ---
       - name: processed_at
-        description: Timestamp when the record was processed.
+        description: >
+          The precise hourly timestamp (ISO format) for the record. 
+          This is the primary time sorting key.
         tests:
           - not_null
+
+      - name: processed_date
+        description: The calendar date (YYYY-MM-DD) extracted from the timestamp.
+
       - name: processed_year
-        description: Year extracted from processed_at.
+        description: The 4-digit year component of the timestamp.
 
       - name: processed_month
-        description: Month extracted from processed_at.
+        description: The numeric month component (1-12) of the timestamp.
 
       - name: processed_day
-        description: Day name (e.g., Monday) derived from processed_at.
+        description: >
+          The name of the day of the week (e.g., 'Monday', 'Tuesday') 
+          derived from the timestamp.
 
       - name: processed_hour
-        description: Hour of day extracted from processed_at (00:00 - 23:00).
+        description: >
+          The hour and minute component in 24-hour format (e.g., '14:00', '09:00') 
+          extracted from the timestamp.
 
       - name: ingested_at
-        description: Timestamp when the raw record was ingested into the system.
-        tests:
-          - not_null
+        description: Timestamp indicating when the raw record was originally ingested into the system.
 
+      # --- Traffic Metrics ---
       - name: counted_cars
-        description: Number of cars counted in the measurement interval.
-        tests:
-          - not_null
+        description: |
+          Total number of cars detected during the specific hour.
+          Can be NULL if the sensor failed to report data for this time slot (calendar spine gap).
 
       - name: average_speed
-        description: Average vehicle speed for the measurement interval.
+        description: |
+          The average speed of vehicles detected during the hour.
+          Can be NULL if the sensor failed to report data for this time slot.
+
+      # --- Data Quality Flags ---
+      - name: is_ghost_reading
+        description: >
+          Boolean flag indicating a logic inconsistency in sensor reporting.
+          Returns TRUE if:
+          - Cars counted = 0 but Speed > 0 (Movement detected without vehicles).
+          - Cars counted > 0 but Speed = 0 (Vehicles detected but no movement).
         tests:
           - not_null
+
+      - name: is_dead
+        description: >
+          Boolean flag indicating a potential sensor failure or lack of traffic.
+          Returns TRUE if both counted_cars and average_speed are exactly 0.
+        tests:
+          - not_null
+
+      - name: is_impossible_speed
+        description: >
+          Boolean flag for physically unlikely data.
+          Returns TRUE if average_speed exceeds 130 (units assumed based on context).
+        tests:
+          - not_null
+
+      - name: is_quality
+        description: >
+          Master quality flag. Returns TRUE only if the record passes all quality checks.
+          A record is considered low quality (FALSE) if:
+          - It is a ghost reading.
+          - The sensor is dead.
+          - The speed is impossible.
+          - Traffic metrics are NULL (missing data).
+        tests:
+          - not_null
+
 
   - name: dim_roads
     description: |
