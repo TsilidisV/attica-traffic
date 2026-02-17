@@ -1,8 +1,10 @@
 <h1 align="center">🚗 Attica Traffic Analysis</h1>
 
 <p align="center">
-  <i>Which is the busiest time slot?</i> • <i>Does total vehicle volume correlate with average network speed?</i> • <br>
-  <i>Which are the most and least volatile roads?</i>
+  • <i>Which is the busiest time slot?</i> <br> 
+  • <i>Does total vehicle volume correlate with average network speed?</i>  <br>
+  • <i>Which are the most and least volatile roads?</i> <br>
+  • <i>Do the measuring devices need maintenance?</i>
   <br>
 </p>
 
