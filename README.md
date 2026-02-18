@@ -8,7 +8,10 @@
   <br>
 </p>
 
-<p align="center"><b>A high-performance, resilient ELT pipeline <br> designed to capture, archive and analyze traffic data from Attica, Greece.</b></p>
+<p align="center"><b>
+  A serverless, portable MDS Lakehouse, <br>
+  utilizing a resilient Medallion-style ELT pipeline, <br>
+  designed to capture, archive and analyze traffic data from Attica, Greece.</b></p>
 <p align="center">This project implements a Medallion Architecture, <br> optimizing for both data fidelity and analytical speed. <br> By separating the "Extract & Load" (Python) from the "Transform" (dbt), <br>both orchestrated by Github Actions, <br> the pipeline ensures a robust source of truth <br> while keeping the analytics layer agile. <br> Analytics dashboards are presented through Streamlit.</p>
 
 
