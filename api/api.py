@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI):
 
         # ⚠️ Replace with your actual Run ID!
         # Once Evidently AI is set up, this will become: "models:/traffic_pipeline@production"
-        run_id = "4712765c615e47afab2222187fddaba2"
+        run_id = "61f98d2d1a434eee85c0032472d01fff"
 
         # 2. Load the Road -> Devices JSON mapping
         mapping_uri = f"runs:/{run_id}/config/road_mapping.json"
@@ -46,7 +46,7 @@ async def lifespan(app: FastAPI):
         logger.success(f"✅ {len(ROAD_TO_DEVICES)} road mappings loaded successfully!")
 
         # 1. Load the Model Pipeline
-        model_uri = f"mlflow-artifacts:/6a85dac4a83e49f19a98d44c75aa5b0e/models/m-5ef68d4c71934ac7b72cdb79721e405d/artifacts/"
+        model_uri = f"mlflow-artifacts:/6a85dac4a83e49f19a98d44c75aa5b0e/models/m-3a3bdf02f78449e297547e91ff70ab02/artifacts/"
         MODEL = mlflow.pyfunc.load_model(model_uri)
 
         logger.success(f"✅ Pipeline loaded successfully!")

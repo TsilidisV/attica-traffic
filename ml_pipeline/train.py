@@ -7,7 +7,6 @@ import mlflow
 import mlflow.sklearn
 import yaml
 from dotenv import load_dotenv
-from feature_engineering import load_optimized_data, preprocess_features
 from loguru import logger
 from mlflow.models import infer_signature
 from sklearn.compose import ColumnTransformer
@@ -16,7 +15,7 @@ from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OrdinalEncoder, TargetEncoder
-from feature_engineering import TimeFeatureExtractor, load_optimized_data, preprocess_features
+from ml_pipeline.feature_engineering import TimeFeatureExtractor, load_optimized_data, preprocess_features
 
 # --- SUPPRESS WARNINGS ---
 warnings.filterwarnings("ignore")
@@ -59,6 +58,26 @@ except Exception as e:
     logger.exception("Failed to initialize DagsHub/MLflow")
     sys.exit(1)
 
+def build_pipeline(model_params=None):
+    """Factory function to build the ML pipeline."""
+    if model_params is None:
+        model_params = {}
+        
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ("device_target_enc", TargetEncoder(target_type="continuous"), ["device_id"]),
+            ("road_ordinal_enc", OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=-1), ["road_name"]),
+        ],
+        remainder="passthrough",
+    )
+
+    return Pipeline(
+        steps=[
+            ("feature_engineer", TimeFeatureExtractor(country='GR')), 
+            ("preprocessor", preprocessor),
+            ("regressor", HistGradientBoostingRegressor(**model_params)),
+        ]
+    )
 
 def main():
     # 3. FETCH AND PREP DATA (Using your separated module)
@@ -72,29 +91,8 @@ def main():
 
     # --- 4. BUILD THE SCIKIT-LEARN PIPELINE ---
     logger.info("Constructing Encoders + Regressor Pipeline...")
-    preprocessor = ColumnTransformer(
-        transformers=[
-            (
-                "device_target_enc",
-                TargetEncoder(target_type="continuous", random_state=SEED),
-                ["device_id"],
-            ),
-            (
-                "road_ordinal_enc",
-                OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=-1),
-                ["road_name"],
-            ),
-        ],
-        remainder="passthrough",
-    )
-
-    model_pipeline = Pipeline(
-        steps=[
-            ("feature_engineer", TimeFeatureExtractor(country='GR')), # <--- New!
-            ("preprocessor", preprocessor),
-            ("regressor", HistGradientBoostingRegressor(**MODEL_PARAMS)),
-        ]
-    )
+    model_pipeline = build_pipeline(MODEL_PARAMS)
+    model_pipeline.fit(X_train, y_train)
 
     # --- 5. TRAIN AND LOG ---
     mlflow.set_experiment("Traffic_Speed_Forecasting_Production")
@@ -123,7 +121,7 @@ def main():
         signature = infer_signature(X_train.head(), predictions[:5])
         mlflow.sklearn.log_model(
             sk_model=model_pipeline,
-            artifact_path="traffic_pipeline",
+            name="traffic_pipeline",
             signature=signature,
             input_example=X_train.iloc[:5],
             code_paths=[feat_eng_path]

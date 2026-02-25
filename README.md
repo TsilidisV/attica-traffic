@@ -164,7 +164,14 @@ uv run python -c "import dotenv; dotenv.load_dotenv(); import os; os.system('dbt
 
 # Run the streamlit dashboard
 uv run streamlit run dashboard/app.py
+
+# Train model
+uv run python -m ml_pipeline.train
+
+# Run API
+uv run fastapi dev api/api2.py
 ```
+
 
 ---
 
