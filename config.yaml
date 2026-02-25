@@ -1,0 +1,20 @@
+# Training data
+data:
+  db_name: "attica_traffic"       
+  schema_name: "prod"
+  table_name: "mrt_traffic_road"  
+  sample_size: null               
+  test_size: 0.2
+  random_state: 42
+
+# Model hyperparameters
+model:
+  max_iter: 500
+  max_depth: 15
+  max_leaf_nodes: 255
+  learning_rate: 0.05
+  min_samples_leaf: 500
+  # Note: ColumnTransformer puts transformed columns first. 
+  # Index 0 will be the Target-Encoded device_id (continuous).
+  # Index 1 will be the Ordinal-Encoded road_name (categorical).
+  categorical_features: [1]

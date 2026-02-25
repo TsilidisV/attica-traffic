@@ -193,28 +193,37 @@ def get_twin_multiple(df):
 
 def get_stacked_bars(df):
 
-    chart = alt.Chart(df).transform_fold(
-        ['dead_percent', 'missing_reading_percent'],
-        as_=['Error Type', 'Percent']
-    ).transform_calculate(
-        # This creates a new field 'Label' with clean names
-        Label="datum['Error Type'] === 'dead_percent' ? 'Dead Readings' : 'Missing Readings'"
-    ).mark_bar().encode(
-        x=alt.X('date:T', title='Date', axis=alt.Axis(format='%b %Y', labelAngle=-45)),
-        y=alt.Y('Percent:Q', title='Percent of bad readings'),
-        
-        # Use the new 'Label' field for color
-        color=alt.Color('Label:N', 
-                        legend=alt.Legend(title="Error category"),
-                        scale=alt.Scale(scheme='tableau10')),
-        
-        tooltip=[
-            alt.Tooltip('date:T', title='Date', format='%B %Y'),
-            alt.Tooltip('Label:N', title='Category'), # Use Label here too
-            alt.Tooltip('Percent:Q', title='Percent', format='.3') # Format as percentage
-        ]
-    ).properties(
-        width=700, height=500, title='Bad Data Readings by Type'
-    ).interactive()
-    
+    chart = (
+        alt.Chart(df)
+        .transform_fold(
+            ["dead_percent", "missing_reading_percent"], as_=["Error Type", "Percent"]
+        )
+        .transform_calculate(
+            # This creates a new field 'Label' with clean names
+            Label="datum['Error Type'] === 'dead_percent' ? 'Dead Readings' : 'Missing Readings'"
+        )
+        .mark_bar()
+        .encode(
+            x=alt.X(
+                "date:T", title="Date", axis=alt.Axis(format="%b %Y", labelAngle=-45)
+            ),
+            y=alt.Y("Percent:Q", title="Percent of bad readings"),
+            # Use the new 'Label' field for color
+            color=alt.Color(
+                "Label:N",
+                legend=alt.Legend(title="Error category"),
+                scale=alt.Scale(scheme="tableau10"),
+            ),
+            tooltip=[
+                alt.Tooltip("date:T", title="Date", format="%B %Y"),
+                alt.Tooltip("Label:N", title="Category"),  # Use Label here too
+                alt.Tooltip(
+                    "Percent:Q", title="Percent", format=".3"
+                ),  # Format as percentage
+            ],
+        )
+        .properties(width=700, height=500, title="Bad Data Readings by Type")
+        .interactive()
+    )
+
     return chart

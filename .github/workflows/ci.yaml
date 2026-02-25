@@ -1,0 +1,29 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # The modern, ultra-fast way to set up uv
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true # Caches dependencies so future runs take seconds!
+
+      # uv automatically fetches the right Python version and installs dependencies
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      # Run the test suite
+      - name: Run Pytest
+        run: uv run pytest -v tests/
