@@ -2,8 +2,7 @@
 data:
   db_name: "attica_traffic"       
   schema_name: "prod"
-  table_name: "mrt_traffic_road"  
-  sample_size: null               
+  table_name: "mrt_traffic_road"          
   test_size: 0.2
   random_state: 42
 

@@ -9,6 +9,7 @@ dependencies = [
     "dagshub>=0.6.8",
     "dbt-duckdb>=1.10.0",
     "dotenv>=0.9.9",
+    "fastapi[standard]>=0.133.0",
     "hf-transfer>=0.1.9",
     "holidays>=0.91",
     "huggingface-hub>=1.4.1",

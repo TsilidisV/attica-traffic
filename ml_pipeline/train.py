@@ -16,6 +16,7 @@ from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OrdinalEncoder, TargetEncoder
+from feature_engineering import TimeFeatureExtractor, load_optimized_data, preprocess_features
 
 # --- SUPPRESS WARNINGS ---
 warnings.filterwarnings("ignore")
@@ -89,6 +90,7 @@ def main():
 
     model_pipeline = Pipeline(
         steps=[
+            ("feature_engineer", TimeFeatureExtractor(country='GR')), # <--- New!
             ("preprocessor", preprocessor),
             ("regressor", HistGradientBoostingRegressor(**MODEL_PARAMS)),
         ]
@@ -116,13 +118,22 @@ def main():
 
         # Log the unified Pipeline
         logger.info("Saving complete Pipeline to MLflow...")
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        feat_eng_path = os.path.join(current_dir, "feature_engineering.py")
         signature = infer_signature(X_train.head(), predictions[:5])
         mlflow.sklearn.log_model(
             sk_model=model_pipeline,
             artifact_path="traffic_pipeline",
             signature=signature,
             input_example=X_train.iloc[:5],
+            code_paths=[feat_eng_path]
         )
+
+        logger.info("Saving road_name and device_id mapping to MLflow...")
+        mapping_df = X[['road_name', 'device_id']].drop_duplicates()
+        road_to_devices = mapping_df.groupby("road_name")["device_id"].apply(list).to_dict()
+        mlflow.log_dict(road_to_devices, "config/road_mapping.json")
+
         logger.success("✅ Run finished! Entire pipeline securely logged to the cloud.")
 
 
