@@ -26,4 +26,4 @@ jobs:
 
       # Run the test suite
       - name: Run Pytest
-        run: uv run pytest -v tests/
+        run: uv run python -m pytest tests
