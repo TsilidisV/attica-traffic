@@ -69,19 +69,6 @@ def build_pipeline(model_params=None):
     )
 
 def main():
-    # --- 2. DAGSHUB / MLFLOW INIT ---
-    logger.info("Initializing DagsHub and MLflow...")
-    try:
-        dagshub.auth.add_app_token(os.getenv("DAGSHUB_TOKEN"))
-        dagshub.init(
-            repo_owner=os.getenv("DAGSHUB_USERNAME"),
-            repo_name=os.getenv("DAGSHUB_REPO"),
-            mlflow=True,
-        )
-    except Exception as e:
-        logger.exception("Failed to initialize DagsHub/MLflow")
-        sys.exit(1)
-
     # --- 1. DAGSHUB / MLFLOW INIT ---
     # Moved INSIDE main() so it only runs during actual training
     logger.info("Initializing DagsHub and MLflow...")
