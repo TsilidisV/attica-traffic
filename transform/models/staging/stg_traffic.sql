@@ -1,5 +1,17 @@
+{{
+    config(
+        unique_key='traffic_id',
+        incremental_strategy='merge' 
+    )
+}}
+
 with source as (
     select * from {{ source('huggingface', 'raw_traffic') }}
+    
+    -- 1. Incremental Filter: Only get new rows since the last run
+    {% if is_incremental() %}
+        where ingested_at > (select max(ingested_at) from {{ this }})
+    {% endif %}
 ),
 
 renamed_and_typed as (
@@ -23,15 +35,21 @@ renamed_and_typed as (
         
         -- road info
         road_name,
-        road_info,
+        road_info
 
     from source
+),
+
+deduplicated as (
+    select * from renamed_and_typed
+    
+    -- 2. Deduplicate logic (unchanged, but handles the smaller batch)
+    -- This ensures that if the source sends duplicates for the same second, 
+    -- we only insert the first one.
+    qualify row_number() over(
+        partition by device_id, processed_at
+        order by processed_at
+    ) = 1
 )
 
-select * from renamed_and_typed
-
--- Deduplicate: if multiple measurements match (same device_id, processed_at), keep first
-qualify row_number() over(
-    partition by device_id, processed_at
-    order by processed_at
-) = 1
+select * from deduplicated

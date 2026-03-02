@@ -1,21 +1,39 @@
-WITH range_bounds AS (
-    -- 1. Determine the start and end date for each device
+{{
+    config(
+        unique_key=['device_id', 'processed_at'],
+        incremental_strategy='merge'
+    )
+}}
+
+WITH filtered_source AS (
+    -- 1. Filter source to only new data
+    SELECT * FROM {{ ref("stg_traffic") }}
+    {% if is_incremental() %}
+        WHERE ingested_at > (SELECT MAX(ingested_at) FROM {{ this }})
+    {% endif %}
+),
+
+range_bounds AS (
+    -- 2. Determine the start and end date for each device IN THIS BATCH
+    -- Note: This calculates the range based only on the filtered data.
     SELECT 
         device_id,
         MIN(processed_at) as start_date,
         MAX(processed_at) as end_date
-    FROM {{ ref("stg_traffic") }}
+    FROM filtered_source
     GROUP BY device_id
 ),
+
 complete_calendar AS (
-    -- 2. Generate the full sequence of dates for each device
+    -- 3. Generate the full sequence of dates for each device
     SELECT 
         device_id,
         -- unnest expands the array of dates into rows
         unnest(generate_series(start_date, end_date, INTERVAL 1 HOUR)) as hourly_slot
     FROM range_bounds
 )
--- 3. Join back to the original table
+
+-- 4. Join back to the FILTERED source
 SELECT 
     -- identifiers
     cal.device_id,
@@ -27,7 +45,7 @@ SELECT
     month(cal.hourly_slot) as processed_month,
     dayname(cal.hourly_slot) as "processed_day",
     strftime(cal.hourly_slot, '%H:%M')  as "processed_hour",
-    ingested_at,
+    origin.ingested_at,
         
     -- traffic info
     origin.counted_cars,
@@ -62,7 +80,7 @@ SELECT
         else true
     end as is_quality
 FROM complete_calendar cal
-LEFT JOIN {{ ref("stg_traffic") }} origin 
+LEFT JOIN filtered_source origin 
     ON cal.device_id = origin.device_id 
     AND cal.hourly_slot = origin.processed_at
 ORDER BY 
