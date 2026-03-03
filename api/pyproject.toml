@@ -1,0 +1,11 @@
+[project]
+name = "attica-api"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.133.0",
+    "pandas<3",
+    "loguru>=0.7.3",
+    "pyaml>=26.2.1",
+    "python-dotenv>=1.2.2",
+]

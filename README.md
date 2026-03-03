@@ -96,6 +96,7 @@ This project uses `loguru` for professional-grade logging:
 attica-traffic-datalake/
 ├── .github/workflows/
 │   └── daily_pipeline.yml     # Daily Cron & CI/CD logic
+├── api/                       # FastAPI
 ├── dashboard/                 # Streamlit dashboard
 ├── ingestion/
 │   └── ingestion.py           # The EL script
@@ -148,28 +149,28 @@ cp .env.example .env
 
 ```bash
 # Ingest yesterday's data (Standard Daily Run)
-uv run python ingestion/ingestion.py ingest-daily
+uv run --package attica-ingestion python ingestion/ingestion.py ingest-daily
 
 # Ingest a specific date
-uv run python ingestion/ingestion.py ingest-daily --date 2024-05-20
+uv run --package attica-ingestion python ingestion/ingestion.py ingest-daily
 
 # Historical Backfill
-uv run python ingestion/ingestion.py backfill 2020-11-05 2024-04-30
+uv run --package attica-ingestion python ingestion/ingestion.py ingest-daily
 
 # Run dbt and install packages
-uv run python -c "import dotenv; dotenv.load_dotenv(); import os; os.system('dbt deps --project-dir transform --profiles-dir transform ')"
+uv run --package attica-transform python -c "import dotenv; dotenv.load_dotenv(); import os; os.system('dbt deps --project-dir transform --profiles-dir transform ')"
 
 # Run dbt and build models
-uv run python -c "import dotenv; dotenv.load_dotenv(); import os; os.system('dbt build --project-dir transform --profiles-dir transform --target prod')"
+uv run --package attica-transform python -c "import dotenv; dotenv.load_dotenv(); import os; os.system('dbt build --project-dir transform --profiles-dir transform --target prod')"
 
 # Run the streamlit dashboard
-uv run streamlit run dashboard/app.py
+uv run --package attica-dashboard streamlit run dashboard/app.py
 
 # Train model
-uv run python -m ml_pipeline.train
+uv run --package attica-ml python -m ml_pipeline.train  
 
 # Run API
-uv run fastapi dev api/api2.py
+uv run fastapi dev api/api.py
 ```
 
 
