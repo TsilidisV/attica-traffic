@@ -7,14 +7,16 @@ on:
     branches: [ "master" ]
 
 jobs:
+  # JOB 1: Read-only, purely for testing
   test:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read # Secure default
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # The modern, ultra-fast way to set up uv
+      # The fast way to set up uv
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
@@ -28,3 +30,30 @@ jobs:
       # Run the test suite
       - name: Run Pytest
         run: uv run --all-packages pytest tests/
+
+  # JOB 2: Write-enabled, only runs if tests pass, only on push (not PRs)
+  generate-requirements:
+    runs-on: ubuntu-latest
+    needs: test # Waits for the 'test' job to succeed!
+    if: github.event_name == 'push' # Prevents committing to other people's PRs
+    permissions:
+      contents: write # Needed to push code
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+        
+      - name: Generate requirements.txt
+        run: uv export --package attica-dashboard --no-hashes > dashboard/requirements.txt
+        
+      - name: Commit and Push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: auto-update dashboard/requirements.txt"
+          file_pattern: dashboard/requirements.txt
