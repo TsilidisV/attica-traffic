@@ -20,10 +20,11 @@ jobs:
         with:
           enable-cache: true # Caches dependencies so future runs take seconds!
 
-      # uv automatically fetches the right Python version and installs dependencies
-      - name: Install dependencies
-        run: uv sync --frozen
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "pyproject.toml"
 
       # Run the test suite
       - name: Run Pytest
-        run: uv run python -m pytest tests
+        rrun: uv run pytest tests/
