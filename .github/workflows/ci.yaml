@@ -27,4 +27,4 @@ jobs:
 
       # Run the test suite
       - name: Run Pytest
-        rrun: uv run pytest tests/
+        run: uv run pytest tests/
