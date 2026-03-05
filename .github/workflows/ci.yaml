@@ -108,8 +108,10 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           
-          git add Dockerfile
-          git commit -m "chore: auto-move Dockerfile to root for HF deployment"
+          git checkout --orphan hf-deploy
+
+          git add .
+          git commit -m "chore: automated deployment to Hugging Face Spaces"
           
           # REPLACE 'YOUR_HF_USERNAME' AND 'YOUR_SPACE_NAME' BELOW!
           git push https://bluerRose:$HF_TOKEN@huggingface.co/spaces/bluerRose/attica-traffic-api master:main --force
