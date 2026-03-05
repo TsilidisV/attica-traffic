@@ -62,7 +62,7 @@ protobuf==6.33.5
     # via streamlit
 pyaml==26.2.1
     # via attica-dashboard
-pyarrow==23.0.1
+pyarrow==23.0.0
     # via streamlit
 pydeck==0.9.1
     # via streamlit
