@@ -102,7 +102,7 @@ jobs:
       - name: Restructure and Push to Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_SPACES_TOKEN }}
-run: |
+        run: |
           # 1. Copy the necessary files to the root
           cp api/Dockerfile Dockerfile
           cp api/README.md README.md || true
