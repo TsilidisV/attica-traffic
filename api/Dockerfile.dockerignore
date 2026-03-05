@@ -1,0 +1,24 @@
+# .dockerignore
+
+# Security
+.env
+*.env
+
+# Git history (Saves massive amounts of build time)
+.git/
+.gitignore
+.github/
+
+# Local Virtual Environments (Docker will build its own!)
+.venv/
+venv/
+env/
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Local build artifacts
+README.md

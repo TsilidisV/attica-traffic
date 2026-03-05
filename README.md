@@ -1,12 +1,3 @@
----
-title: My Attica API
-emoji: 🚀
-colorFrom: blue
-colorTo: green
-sdk: docker
-pinned: false
----
-
 <h1 align="center">🚗 Attica Mobility Analytics! 🚦</h1>
 <h2 align="center"> From Ingestion to Prediction: An End-to-End Data & ML Pipeline </h2>
 
@@ -179,16 +170,11 @@ uv run --package attica-dashboard streamlit run dashboard/app.py
 uv run --package attica-ml python -m ml_pipeline.train  
 
 # Run API
-uv run fastapi dev api/api.py
+uv run --package attica-api fastapi dev api/main.py
+# or
+docker build -t my-api-image-test -f api/Dockerfile .
+docker run -p 8000:7860 --env-file ./.env my-api-image-test
 ```
-Gilenya: ,
-tecfidera: Ρωσικο,
-kesimpta: Ουκρανικο,
-aubagio: Ιταλικο σιγουρα,
-mayzent: Εβραικο
-
-
-
 ---
 
 ## 🗺 Roadmap
@@ -197,8 +183,8 @@ mayzent: Εβραικο
 * [x] **Phase 2:** Analytics Engineering (dbt + MotherDuck)
 * [x] **Phase 3:** Interactive Visualizations (Streamlit)
 * [x] **Phase 4:** ML model for speed predictions
-* [] **Phase 5:** Model deployment through an API (FastAPI)
-* [] **Phase 6:** ML model monitoring (Evidently AI)
+* [_] **Phase 5:** Model deployment through an API (FastAPI)
+* [_] **Phase 6:** ML model monitoring (Evidently AI)
 
 
 

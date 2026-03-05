@@ -84,3 +84,32 @@ jobs:
         with:
           commit_message: "chore: auto-update dashboard/requirements.txt"
           file_pattern: dashboard/requirements.txt
+
+  # JOB 3: Deploy API to Hugging Face, only runs if API changed and tests pass
+  deploy-api:
+    runs-on: ubuntu-latest
+    needs: [test, detect-changes] # Waits for BOTH tests and the filter
+    # ONLY run if it's a push to master AND the API files were modified
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && needs.detect-changes.outputs.api == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Restructure and Push to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_SPACES_TOKEN }}
+        run: |
+          cp api/Dockerfile Dockerfile
+          cp api/Dockerfile.dockerignore .dockerignore
+          cp api/README.md README.md
+
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          
+          git add Dockerfile
+          git commit -m "chore: auto-move Dockerfile to root for HF deployment"
+          
+          # REPLACE 'YOUR_HF_USERNAME' AND 'YOUR_SPACE_NAME' BELOW!
+          git push https://bluerRose:$HF_TOKEN@huggingface.co/spaces/bluerRose/attica-traffic-api master:main --force
