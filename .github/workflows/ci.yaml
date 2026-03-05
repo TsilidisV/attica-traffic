@@ -122,4 +122,4 @@ jobs:
           git commit -m "chore: lean automated deployment to Hugging Face Spaces"
           
           # 5. Force push this clean, history-free commit to Hugging Face
-          git push https://bluerRose:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/bluerRose/attica-traffic-api hf-deploy:main --force
+          git push https://bluerRose:${{ secrets.HF_SPACES_TOKEN }}@huggingface.co/spaces/bluerRose/attica-traffic-api hf-deploy:main --force
