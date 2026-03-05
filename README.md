@@ -7,7 +7,7 @@ sdk: docker
 pinned: false
 ---
 
-<h1 align="center">🚗 Attica Mobility Analytics 🚦</h1>
+<h1 align="center">🚗 Attica Mobility Analytics! 🚦</h1>
 <h2 align="center"> From Ingestion to Prediction: An End-to-End Data & ML Pipeline </h2>
 
 <p align="center">
