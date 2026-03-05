@@ -102,18 +102,24 @@ jobs:
       - name: Restructure and Push to Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_SPACES_TOKEN }}
-        run: |
+run: |
+          # 1. Copy the necessary files to the root
           cp api/Dockerfile Dockerfile
-          cp api/Dockerfile.dockerignore .dockerignore
-          cp api/README.md README.md
-
+          cp api/README.md README.md || true
+          cp api/Dockerfile.dockerignore .dockerignore || true
+          
+          # 2. Configure a dummy Git user
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           
+          # 3. Create a fresh branch with zero Git history
           git checkout --orphan hf-deploy
-
-          git add .
-          git commit -m "chore: automated deployment to Hugging Face Spaces"
           
-          # REPLACE 'YOUR_HF_USERNAME' AND 'YOUR_SPACE_NAME' BELOW!
+          # 4. THE FIX: Add ONLY the specific files and folders the API needs
+          git add api/ pyproject.toml uv.lock config.yaml Dockerfile
+          git add README.md .dockerignore || true
+          
+          git commit -m "chore: lean automated deployment to Hugging Face Spaces"
+          
+          # 5. Force push this clean, history-free commit to Hugging Face
           git push https://bluerRose:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/bluerRose/attica-traffic-api hf-deploy:main --force
