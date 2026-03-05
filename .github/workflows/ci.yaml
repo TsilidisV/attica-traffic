@@ -27,11 +27,13 @@ jobs:
               - 'dashboard/**'
               - 'pyproject.toml'
               - 'uv.lock'
+              - '.github/workflows/**'
             api:
               - 'api/**'
               - 'config.yaml'
               - 'pyproject.toml'
               - 'uv.lock'
+              - '.github/workflows/**'
 
   # JOB 1: Read-only, purely for testing
   test:
