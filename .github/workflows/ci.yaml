@@ -116,4 +116,4 @@ jobs:
           git commit -m "chore: automated deployment to Hugging Face Spaces"
           
           # REPLACE 'YOUR_HF_USERNAME' AND 'YOUR_SPACE_NAME' BELOW!
-          ggit push https://bluerRose:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/bluerRose/attica-traffic-api hf-deploy:main --force
+          git push https://bluerRose:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/bluerRose/attica-traffic-api hf-deploy:main --force
