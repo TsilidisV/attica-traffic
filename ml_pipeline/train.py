@@ -120,14 +120,13 @@ def main():
         # Log the unified Pipeline
         logger.info("Saving complete Pipeline to MLflow...")
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        feat_eng_path = os.path.join(current_dir, "feature_engineering.py")
         signature = infer_signature(X_train.head(), predictions[:5])
         mlflow.sklearn.log_model(
             sk_model=model_pipeline,
             name="traffic_pipeline",
             signature=signature,
             input_example=X_train.iloc[:5],
-            code_paths=[feat_eng_path]
+            code_paths=[current_dir]
         )
 
         logger.info("Saving road_name and device_id mapping to MLflow...")

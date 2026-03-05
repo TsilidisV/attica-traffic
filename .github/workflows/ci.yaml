@@ -7,6 +7,32 @@ on:
     branches: [ "master" ]
 
 jobs:
+# JOB 0: The Traffic Director (Detects what changed)
+  detect-changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      # These outputs are passed to the 'if' statements of the jobs below
+      dashboard: ${{ steps.filter.outputs.dashboard }}
+      api: ${{ steps.filter.outputs.api }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            dashboard:
+              - 'dashboard/**'
+              - 'pyproject.toml'
+              - 'uv.lock'
+            api:
+              - 'api/**'
+              - 'config.yaml'
+              - 'pyproject.toml'
+              - 'uv.lock'
+              
   # JOB 1: Read-only, purely for testing
   test:
     runs-on: ubuntu-latest

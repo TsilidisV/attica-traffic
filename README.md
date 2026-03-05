@@ -1,3 +1,12 @@
+---
+title: My Attica API
+emoji: 🚀
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+---
+
 <h1 align="center">🚗 Attica Mobility Analytics 🚦</h1>
 <h2 align="center"> From Ingestion to Prediction: An End-to-End Data & ML Pipeline </h2>
 
@@ -172,6 +181,12 @@ uv run --package attica-ml python -m ml_pipeline.train
 # Run API
 uv run fastapi dev api/api.py
 ```
+Gilenya: ,
+tecfidera: Ρωσικο,
+kesimpta: Ουκρανικο,
+aubagio: Ιταλικο σιγουρα,
+mayzent: Εβραικο
+
 
 
 ---

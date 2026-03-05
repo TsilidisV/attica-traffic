@@ -3,8 +3,8 @@ from fastapi.testclient import TestClient
 import numpy as np
 
 # Import the module itself so we can override its global variables
-import api.api as api_module
-from api.api import app
+import api.main as api_module
+from api.main import app
 
 
 # --- 1. MOCK THE GLOBALS ---
