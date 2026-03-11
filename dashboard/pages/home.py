@@ -42,7 +42,7 @@ with container:
         road_name = st.selectbox(
             "Select a road",
             options=sorted(df_vol["road_name"].unique()),
-            index=34 # default to "ΚΗΦΙΣΙΑΣ"
+            index=33 # default to "ΚΗΦΙΣΙΑΣ"
         )
 
     with col2:
