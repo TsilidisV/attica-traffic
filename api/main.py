@@ -85,6 +85,21 @@ class TrafficResponse(BaseModel):
         ..., description="Granular speed prediction per device ID"
     )
 
+# --- HOME ---
+@app.get("/")
+def root():
+    return {
+        "message": "Welcome to the ML model API",
+        "docs": "/docs",
+        "status_check": "/health",
+        "ml_prediction": "/predict"
+    }
+
+# --- HEALTH ENDPOINT ---
+@app.get("/health")
+def health_check():
+    # Logic to check model status
+    return {"status": "healthy"}
 
 # --- PREDICTION ENDPOINT ---
 @app.post("/predict", response_model=TrafficResponse)
