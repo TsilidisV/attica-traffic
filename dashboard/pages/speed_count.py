@@ -1,9 +1,11 @@
 import streamlit as st
-from data import get_speed_count
+from data import get_daily_cache_key, get_speed_count
 from figures import get_twin_multiple
 
+current_cache_key = get_daily_cache_key()
+
 with st.spinner("Fetching data from MotherDuck..."):
-    df = get_speed_count()
+    df = get_speed_count(current_cache_key)
 
 st.title("Traffic Flow Theory (Speed vs. Volume Correlation) 🚕")
 st.markdown(

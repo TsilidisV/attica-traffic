@@ -2,18 +2,55 @@
 import duckdb
 import streamlit as st
 import pandas as pd
+from datetime import datetime, timedelta, timezone
 
+def get_daily_cache_key() -> datetime.date:
+    """
+    Generates a deterministic cache key to force a daily data refresh at exactly 06:00 UTC.
 
-# 1. Shared Database Connection
+    ### The Problem:
+    Standard Streamlit `@st.cache_data(ttl=...)` invalidates based on the time of the 
+    *first user visit*. If the first user visits at 10:00 UTC, the cache lives until 
+    10:00 UTC the next day. This ignores our daily Motherduck batch pipeline, which 
+    completes at ~05:12 UTC, potentially serving stale data for hours.
+
+    ### The Solution:
+    Instead of `ttl`, we use this function to generate a static date string that 
+    changes exactly once a day at 06:00 UTC. We pass this string as an argument to 
+    our data-loading functions. When the string changes, Streamlit sees a "new" 
+    function argument, invalidates the old cache (enforced by `max_entries=1`), 
+    and fetches the fresh Motherduck data.
+
+    ### Implementation Logic (Time-Shifting):
+    To make the key roll over at 06:00 UTC instead of midnight, we take the current 
+    UTC time and physically shift it backward by 6 hours before extracting the date.
+    
+    Examples of the shift on Nov 2nd:
+    - At 05:12 UTC (pipeline runs) -> Shifted to Nov 1st 23:12 -> Key: "Nov 1" (Stale cache retained)
+    - At 05:59 UTC                -> Shifted to Nov 1st 23:59 -> Key: "Nov 1" (Stale cache retained)
+    - At 06:00 UTC (rollover)     -> Shifted to Nov 2nd 00:00 -> Key: "Nov 2" (CACHE INVALIDATED)
+    - At 14:00 UTC                -> Shifted to Nov 2nd 08:00 -> Key: "Nov 2" (Fresh cache hit)
+
+    Returns:
+        datetime.date: The shifted UTC date used as the Streamlit cache key.
+    """
+    # Force UTC to ensure consistent behavior regardless of Streamlit server region
+    now_utc = datetime.now(timezone.utc)
+    
+    # Shift time backward by 6 hours. 
+    shifted_time = now_utc - timedelta(hours=6)
+    
+    return shifted_time.date()
+
+# Shared Database Connection
 @st.cache_resource
 def get_connection():
     token = st.secrets["MOTHERDUCK_TOKEN"]
     # Connect explicitly to your database
     return duckdb.connect(f"md:attica_traffic?motherduck_token={token}")
 
-
-@st.cache_data(ttl=3600)
-def get_homepage_kpi():
+@st.cache_data
+def get_homepage_kpi(cache_key):
     con = get_connection()
 
     # Map your desired output keys to the database table names
@@ -31,8 +68,8 @@ def get_homepage_kpi():
     }
 
 
-@st.cache_data(ttl=3600)
-def get_heatmap_last_30():
+@st.cache_data
+def get_heatmap_last_30(cache_key):
     con = get_connection()
 
     query = """
@@ -45,8 +82,9 @@ def get_heatmap_last_30():
     """
     return con.execute(query).df()
 
-@st.cache_data(ttl=3600)
-def get_spatiotemporal():
+
+@st.cache_data
+def get_spatiotemporal(cache_key):
     con = get_connection()
 
     query = """
@@ -63,8 +101,8 @@ def get_spatiotemporal():
     return con.execute(query).df()
 
 
-@st.cache_data(ttl=3600)
-def get_volatility_data_last_30():
+@st.cache_data
+def get_volatility_data_last_30(cache_key):
     con = get_connection()
 
     query = """
@@ -79,8 +117,8 @@ def get_volatility_data_last_30():
     return con.execute(query).df()
 
 
-@st.cache_data(ttl=3600)
-def get_volatility_data():
+@st.cache_data
+def get_volatility_data(cache_key):
     con = get_connection()
 
     query = """
@@ -95,8 +133,8 @@ def get_volatility_data():
     return con.execute(query).df()
 
 
-@st.cache_data(ttl=3600)
-def get_speed_count():
+@st.cache_data
+def get_speed_count(cache_key):
     con = get_connection()
 
     query = """
@@ -111,8 +149,9 @@ def get_speed_count():
     """
     return con.execute(query).df()
 
-@st.cache_data(ttl=3600)
-def get_health():
+
+@st.cache_data
+def get_health(cache_key):
     con = get_connection()
 
     query = """
@@ -137,7 +176,7 @@ def get_health():
     """
     df = con.execute(query).df()
     df['date'] = pd.to_datetime(
-    df['processed_year'].astype(str) + '-' + 
-    df['processed_month'].astype(str) + '-01'
+        df['processed_year'].astype(str) + '-' + 
+        df['processed_month'].astype(str) + '-01'
     )
     return df

@@ -1,9 +1,11 @@
 import streamlit as st
-from data import get_spatiotemporal
+from data import get_daily_cache_key, get_spatiotemporal
 from figures import get_heatmap
 
+current_cache_key = get_daily_cache_key()
+
 with st.spinner("Fetching data from MotherDuck..."):
-    df = get_spatiotemporal()
+    df = get_spatiotemporal(current_cache_key)
 
 
 st.title("Spatio-Temporal Heatmap 🚗")

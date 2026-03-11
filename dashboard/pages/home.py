@@ -1,30 +1,37 @@
-import figures
-import streamlit as st
 from datetime import datetime, timedelta
-import pytz
 
+import figures
+import pytz
+import streamlit as st
+from data import (
+    get_daily_cache_key,
+    get_health,
+    get_heatmap_last_30,
+    get_homepage_kpi,
+    get_volatility_data_last_30,
+)
 from predict import call_hf_api
 
-from data import get_heatmap_last_30, get_homepage_kpi, get_volatility_data_last_30, get_health
+current_cache_key = get_daily_cache_key()
 
 with st.spinner("Fetching data from MotherDuck..."):
-    data = get_homepage_kpi()
+    data = get_homepage_kpi(current_cache_key)
 
 with st.spinner("Fetching data from MotherDuck..."):
-    df_heat = get_heatmap_last_30()
+    df_heat = get_heatmap_last_30(current_cache_key)
 
 with st.spinner("Fetching data from MotherDuck..."):
-    df_vol = get_volatility_data_last_30()
+    df_vol = get_volatility_data_last_30(current_cache_key)
 
 with st.spinner("Fetching data from MotherDuck..."):
-    df_health = get_health()
+    df_health = get_health(current_cache_key)
 
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Attica Traffic Analytics", page_icon="🚗", layout="wide")
 
 
 """
-# Attica Traffic Analytics 🚗🚕🚐🚌🚚🚑🚙
+# Attica Traffic Analytics 🚦🚗🚕🚐🚌🚚🚑🚙
 
 In-depth analytics for Attica's road network, using the official data provided by [data.gov.gr](https://data.gov.gr/datasets/road_traffic_attica)
 
@@ -43,17 +50,19 @@ with container:
         road_name = st.selectbox(
             "Select a road",
             options=sorted(df_vol["road_name"].unique()),
-            index=33 # default to "ΚΗΦΙΣΙΑΣ"
+            index=33,  # default to "ΚΗΦΙΣΙΑΣ"
         )
 
     with col2:
         # Input for Date time
         # We set the current datetime and replace mins with 0 and add 1 hour
-        default_date = datetime.now(pytz.timezone('Europe/Athens')).replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+        default_date = datetime.now(pytz.timezone("Europe/Athens")).replace(
+            minute=0, second=0, microsecond=0
+        ) + timedelta(hours=1)
         target_date = st.datetime_input(
             "Target date",
             value=default_date,
-            step = 60 * 60 # 1 hour
+            step=60 * 60,  # 1 hour
         )
 
     if st.button("Predict Traffic Speed", type="primary"):
@@ -63,7 +72,7 @@ with container:
         active_devices = prediction.get("active_devices_used", "N/A")
 
         st.metric(
-            label=f"Predicted speed for {road_name} at {target_date.strftime("%Y-%m-%d %H:%M")}",
+            label=f"Predicted speed for {road_name} at {target_date.strftime('%Y-%m-%d %H:%M')}",
             value=f"{predicted_speed} Km/h",
         )
 
