@@ -1,12 +1,16 @@
 import figures
 import streamlit as st
+from datetime import datetime, timedelta
+
+from predict import call_hf_api
+
 from data import get_heatmap_last_30, get_homepage_kpi, get_volatility_data_last_30, get_health
 
 with st.spinner("Fetching data from MotherDuck..."):
     data = get_homepage_kpi()
 
 with st.spinner("Fetching data from MotherDuck..."):
-    df_test = get_heatmap_last_30()
+    df_heat = get_heatmap_last_30()
 
 with st.spinner("Fetching data from MotherDuck..."):
     df_vol = get_volatility_data_last_30()
@@ -25,9 +29,46 @@ In-depth analytics for Attica's road network, using the official data provided b
 
 For a quick overview of the last 30 days, check out bellow. For analytics concerning the whole data period, spanning from late 2020, check out the tabs in the **sidebar**.
 
+## Speed Predictor 
+
+"""
+
+container = st.container(border=True)
+with container:
+    col1, col2 = st.columns(2)
+
+    with col1:
+        # Input for Road Name (Pre-filled with the example value)
+        road_name = st.selectbox(
+            "Select a road",
+            options=sorted(df_vol["road_name"].unique()),
+            index=34 # default to "ΚΗΦΙΣΙΑΣ"
+        )
+
+    with col2:
+        # Input for Date time
+        # We set the current datetime and replace mins with 0 and add 1 hour
+        default_date = datetime.now().replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+        target_date = st.datetime_input(
+            "Target date",
+            value=default_date,
+            step = 60 * 60 # 1 hour
+        )
+
+    if st.button("Predict Traffic Speed", type="primary"):
+        prediction = call_hf_api(road_name, target_date)
+
+        predicted_speed = prediction.get("average_predicted_speed_kmh", "N/A")
+        active_devices = prediction.get("active_devices_used", "N/A")
+
+        st.metric(
+            label=f"Predicted speed for {road_name} at {target_date.strftime("%Y-%m-%d %H:%M")}",
+            value=f"{predicted_speed} Km/h",
+        )
+
+
+"""
 ##  Last 30 Days Summary
-
-
 
 """
 
@@ -98,7 +139,7 @@ with st.container(border=True):
     st.altair_chart(twin_chart, width="stretch")
 
 with st.container(border=True):
-    chart = figures.get_heatmap(df_test)
+    chart = figures.get_heatmap(df_heat)
     st.altair_chart(chart, width="stretch")
 
 with st.container(horizontal=True, gap="medium", border=True):
@@ -117,6 +158,7 @@ with st.container(horizontal=True, gap="medium", border=True):
         """
         chart_vol_head = figures.get_bar_chart(df_vol.tail(20))
         st.altair_chart(chart_vol_head, width="stretch")
+
 
 """
 ## Summary of Device Health

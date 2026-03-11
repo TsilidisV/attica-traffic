@@ -126,7 +126,7 @@ attica-traffic-datalake/
 
 * Python 3.12
 * [uv](https://github.com/astral-sh/uv) (Fast Python package manager)
-* Hugging Face account with a **Write Token**
+* Hugging Face account with a **Write Token** for a dataset and space repo
 * MotherDuck account with a **Access Token**
 ### Installation & Setup
 
