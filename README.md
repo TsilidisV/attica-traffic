@@ -183,7 +183,7 @@ docker run -p 8000:7860 --env-file ./.env my-api-image-test
 * [x] **Phase 2:** Analytics Engineering (dbt + MotherDuck)
 * [x] **Phase 3:** Interactive Visualizations (Streamlit)
 * [x] **Phase 4:** ML model for speed predictions
-* [_] **Phase 5:** Model deployment through an API (FastAPI)
+* [x] **Phase 5:** Model deployment through an API (FastAPI)
 * [_] **Phase 6:** ML model monitoring (Evidently AI)
 
 
@@ -294,3 +294,30 @@ graph LR
     style D fill:#326ce5,stroke:#333,stroke-width:2px
     style G fill:#ff4b4b,stroke:#333,stroke-width:2px
 ```
+
+## 📊 Caching Architecture: The Time-Shifted Key
+
+Our Streamlit dashboard relies on heavy analytical queries from Motherduck. Because Motherduck is updated via a daily batch job (completing around `05:12 UTC`), standard time-to-live (TTL) caching is insufficient. 
+
+Standard TTL expires relative to user traffic, meaning an early morning visitor could accidentally lock stale data into the cache for the next 24 hours.
+
+### How we solve this
+We utilize a **Time-Shifted Cache Key** combined with Streamlit's `max_entries=1` parameter.
+
+1. **The Generator:** The `get_daily_cache_key()` function generates a dummy argument passed to all `@st.cache_data` functions.
+2. **The Shift:** The function subtracts 6 hours from the current UTC time before extracting the calendar date. 
+3. **The Rollover:** This mathematical shift forces the extracted date to change at exactly `06:00 UTC` every day.
+
+### Execution Timeline Example
+
+| Actual UTC Time | Shift Applied (-6h) | Resulting Cache Key | Dashboard State |
+| :--- | :--- | :--- | :--- |
+| **04:00** | 22:00 (Yesterday) | `2024-11-01` | Serving yesterday's cached data. |
+| **05:12** | 23:12 (Yesterday) | `2024-11-01` | *Motherduck ingestion completes.* |
+| **05:59** | 23:59 (Yesterday) | `2024-11-01` | Final minute of yesterday's cache. |
+| **06:00** | 00:00 (Today) | `2024-11-02` | **Key changes! Cache Invalidated.** |
+| **06:01** | 00:01 (Today) | `2024-11-02` | First visitor triggers Motherduck query. |
+| **14:00** | 08:00 (Today) | `2024-11-02` | Dashboard serves today's cached data. |
+
+### Memory Management
+All data loading decorators are configured with `@st.cache_data(max_entries=1)`. The moment the cache key rolls over at `06:00 UTC`, Streamlit immediately drops the previous day's `pandas.DataFrame` from memory, preventing out-of-memory (OOM) crashes on Streamlit Cloud.

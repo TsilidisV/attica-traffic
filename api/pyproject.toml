@@ -5,12 +5,12 @@ requires-python = ">=3.12"
 dependencies = [
     "duckdb==1.4.4",
     "fastapi[standard]>=0.133.0",
-    "holidays==0.91",
     "pandas<3",
     "loguru>=0.7.3",
-    "polars==1.38.1",
     "pyaml>=26.2.1",
     "pyarrow==23.0.0",
     "python-dotenv>=1.2.2",
     "mlflow>=3.10.0",
+    "holidays>=0.91",
+    "polars>=1.38.1",
 ]

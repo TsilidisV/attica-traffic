@@ -127,11 +127,11 @@ dependencies = [
 requires-dist = [
     { name = "duckdb", specifier = "==1.4.4" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.133.0" },
-    { name = "holidays", specifier = "==0.91" },
+    { name = "holidays", specifier = ">=0.91" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "mlflow", specifier = ">=3.10.0" },
     { name = "pandas", specifier = "<3" },
-    { name = "polars", specifier = "==1.38.1" },
+    { name = "polars", specifier = ">=1.38.1" },
     { name = "pyaml", specifier = ">=26.2.1" },
     { name = "pyarrow", specifier = "==23.0.0" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
