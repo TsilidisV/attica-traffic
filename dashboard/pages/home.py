@@ -1,6 +1,7 @@
 import figures
 import streamlit as st
 from datetime import datetime, timedelta
+import pytz
 
 from predict import call_hf_api
 
@@ -48,7 +49,7 @@ with container:
     with col2:
         # Input for Date time
         # We set the current datetime and replace mins with 0 and add 1 hour
-        default_date = datetime.now().replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+        default_date = datetime.now(pytz.timezone('Europe/Athens')).replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
         target_date = st.datetime_input(
             "Target date",
             value=default_date,
