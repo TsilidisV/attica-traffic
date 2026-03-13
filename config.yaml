@@ -17,3 +17,7 @@ model:
   # Index 0 will be the Target-Encoded device_id (continuous).
   # Index 1 will be the Ordinal-Encoded road_name (categorical).
   categorical_features: [1]
+
+# Drift reporting
+drift:
+  sample_size: 100000

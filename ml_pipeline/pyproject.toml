@@ -11,4 +11,5 @@ dependencies = [
     "loguru>=0.7.3",
     "pyaml>=26.2.1",
     "python-dotenv>=1.2.2",
+    "evidently>=0.7.21",
 ]

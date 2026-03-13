@@ -5,6 +5,7 @@ from datetime import date
 from typing import Dict
 
 import mlflow.pyfunc
+from mlflow.tracking import MlflowClient
 import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
@@ -33,7 +34,12 @@ async def lifespan(app: FastAPI):
 
         # ⚠️ Replace with your actual Run ID!
         # Once Evidently AI is set up, this will become: "models:/traffic_pipeline@production"
-        run_id = "ad4a004485294bd7b50b1be158b915b3"
+        client = MlflowClient()
+        model_versions = client.search_model_versions("name='Attica_Traffic_Model'")
+
+        # Sort them by version number to ensure we grab the absolute latest one
+        latest_version_info = max(model_versions, key=lambda v: int(v.version))
+        run_id = latest_version_info.run_id
 
         # 2. Load the Road -> Devices JSON mapping
         mapping_uri = f"runs:/{run_id}/config/road_mapping.json"
@@ -45,7 +51,7 @@ async def lifespan(app: FastAPI):
         logger.success(f"✅ {len(ROAD_TO_DEVICES)} road mappings loaded successfully!")
 
         # 1. Load the Model Pipeline
-        model_uri = f"mlflow-artifacts:/6a85dac4a83e49f19a98d44c75aa5b0e/models/m-aa0b061efdb04b16ae53d52f2c99d247/artifacts/"
+        model_uri = "models:/Attica_Traffic_Model/latest/"
         MODEL = mlflow.pyfunc.load_model(model_uri)
 
         logger.success(f"✅ Pipeline loaded successfully!")

@@ -8,8 +8,6 @@ import yaml
 from dotenv import load_dotenv
 from loguru import logger
 import pandas as pd
-import numpy as np
-import holidays
 from sklearn.base import BaseEstimator, TransformerMixin
 load_dotenv()
 
@@ -84,6 +82,10 @@ def load_optimized_data() -> pl.DataFrame:
     logger.info(f"Connecting to MotherDuck database: {DB_NAME}...")
     con = get_motherduck_conn()
 
+    # TODO: adding "AND processed_date >= CURRENT_DATE - INTERVAL 1 YEAR"
+    # improves model performance and accuracy
+    # another idea is to pass sample_weight to gradient boosting model.
+    # TODO: lookback is a hparam -> config
     query = f"""
         SELECT 
             device_id,                
@@ -92,11 +94,13 @@ def load_optimized_data() -> pl.DataFrame:
             processed_day, 
             processed_hour, 
             average_speed,
-            processed_at
+            processed_at,
+            processed_date,
         FROM {DB_NAME}.{SCHEMA_NAME}.{TABLE_NAME}
         WHERE average_speed IS NOT NULL
           AND average_speed > 2
           AND average_speed < 130
+          AND processed_date >= CURRENT_DATE - INTERVAL 1 YEAR
     """
 
     logger.debug(f"Executing SQL Query:\n{query}")

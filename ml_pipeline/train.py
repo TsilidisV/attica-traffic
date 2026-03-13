@@ -44,7 +44,7 @@ TEST_SIZE = config["data"]["test_size"]
 SEED = config["data"]["random_state"]
 MODEL_PARAMS = config["model"]
 MODEL_PARAMS["random_state"] = SEED
-
+SAMPLE_SIZE = config["drift"]["sample_size"]
 
 
 def build_pipeline(model_params=None):
@@ -95,12 +95,23 @@ def main():
     # --- 4. BUILD THE SCIKIT-LEARN PIPELINE ---
     logger.info("Constructing Encoders + Regressor Pipeline...")
     model_pipeline = build_pipeline(MODEL_PARAMS)
-    model_pipeline.fit(X_train, y_train)
 
     # --- 5. TRAIN AND LOG ---
     mlflow.set_experiment("Traffic_Speed_Forecasting_Production")
 
     with mlflow.start_run(run_name="pipeline_target_encoded"):
+        # Logging training dataset metadata for data lineage
+        logger.info("Logging full training dataset metadata to MLflow...")
+        full_train_df = X_train.copy(deep=False)
+        full_train_df['average_speed'] = y_train
+        
+        mlflow_dataset = mlflow.data.from_pandas(
+            full_train_df,
+            targets="average_speed",
+            name="dataset"
+        )
+        mlflow.log_input(mlflow_dataset, context="training")
+
         logger.info("Training full pipeline (This will encode AND fit the model)...")
         model_pipeline.fit(X_train, y_train)
 
@@ -109,13 +120,29 @@ def main():
 
         mae = mean_absolute_error(y_test, predictions)
         r2 = r2_score(y_test, predictions)
-        logger.success(f"FINAL METRICS -> MAE: {mae:.2f} km/h | R2: {r2:.4f}")
+        logger.success(f"FINAL METRICS -> MAE: {mae:.2f} Km/h | R2: {r2:.4f}")
 
         # Log Hyperparameters & Config
         mlflow.log_dict(config, "config.yaml")
         mlflow.log_params(MODEL_PARAMS)
         mlflow.log_metric("mae", mae)
         mlflow.log_metric("r2_score", r2)
+
+        # Save reference data for evidently AI
+        logger.info("Saving Reference Dataset for Data Drift Monitoring...")
+        # Combine features and target
+        reference_df = X_train.copy()
+        reference_df['average_speed'] = y_train 
+        # Sample the data (Statistically, 50,000 rows is more than enough for drift detection)
+        # This keeps MLflow storage costs low and CI/CD downloads fast.
+        if len(reference_df) > SAMPLE_SIZE:
+            reference_df = reference_df.sample(n=SAMPLE_SIZE, random_state=SEED)
+        # Save locally as Parquet (optimized), log it, and delete the local copy
+        reference_file = "reference_data.parquet"
+        reference_df.to_parquet(reference_file, index=False)
+        mlflow.log_artifact(reference_file, "data")
+        os.remove(reference_file) 
+        logger.success("Reference dataset successfully logged to MLflow.")
 
         # Log the unified Pipeline
         logger.info("Saving complete Pipeline to MLflow...")
@@ -126,7 +153,8 @@ def main():
             name="traffic_pipeline",
             signature=signature,
             input_example=X_train.iloc[:5],
-            code_paths=[current_dir]
+            code_paths=[current_dir],
+            registered_model_name="Attica_Traffic_Model"
         )
 
         logger.info("Saving road_name and device_id mapping to MLflow...")
