@@ -1,20 +1,64 @@
 version: 2
 
 models:
+  # --- Utilities ---
+  - name: util_hours
+    description: >
+      A dynamically generated calendar spine containing every hour from a fixed start date 
+      up to the current hour. Used to gap-fill missing sensor data during incremental runs.
+    columns:
+      - name: hourly_slot
+        description: The precise hourly timestamp.
+        tests:
+          - unique
+          - not_null
+
+  # --- Dimensions ---
+  - name: dim_roads
+    description: |
+      Normalized road names and road metadata derived from stg_traffic.
+      Applies mapping rules to standardize Greek road names.
+    columns:
+      - name: device_id
+        description: Unique identifier for the traffic device.
+        tests:
+          - not_null
+          - unique
+
+      - name: road_name
+        description: Normalized road name after applying mapping rules (e.g., 'Λ. ΑΘΗΝΩΝ' -> 'ΑΘΗΝΩΝ').
+        tests:
+          - not_null
+
+      - name: road_info
+        description: Additional metadata or descriptive information about the road.
+
+  # --- Facts ---
   - name: fct_measurements
     description: |
       Processed traffic metrics derived from the staging table stg_traffic.
-      Contains device identifiers, processing timestamps, and traffic metrics.
-
-      This model is also responsible for identifying data quality issues, including 
+      
+      This model uses a dynamic calendar spine (util_hours) to guarantee a continuous 
+      hourly time series for every device, even when the physical sensor drops offline. 
+      Hours without source data will have NULL traffic metrics and be flagged as low quality.
+      
+      It is also responsible for identifying data quality issues, including 
       ghost readings, dead sensors, and physically impossible speed recordings.
+    
+    # Optional but recommended: Tests the unique compound key of the spine
+    # tests:
+    #   - dbt_utils.unique_combination_of_columns:
+    #       combination_of_columns:
+    #         - device_id
+    #         - processed_at
+
     columns:
       - name: device_id
         description: Unique identifier for the traffic device.
         tests:
           - not_null
           - relationships:
-              arguments:
+              arguments:        
                 to: ref('dim_roads')
                 field: device_id
 
@@ -22,7 +66,7 @@ models:
       - name: processed_at
         description: >
           The precise hourly timestamp (ISO format) for the record. 
-          This is the primary time sorting key.
+          This is the primary time sorting key, generated from the continuous util_hours spine.
         tests:
           - not_null
 
@@ -46,18 +90,20 @@ models:
           extracted from the timestamp.
 
       - name: ingested_at
-        description: Timestamp indicating when the raw record was originally ingested into the system.
+        description: |
+          Timestamp indicating when the raw record was originally ingested into the system.
+          Will be NULL for gap-filled hours where the sensor was offline.
 
       # --- Traffic Metrics ---
       - name: counted_cars
         description: |
           Total number of cars detected during the specific hour.
-          Can be NULL if the sensor failed to report data for this time slot (calendar spine gap).
+          Will be NULL if the sensor failed to report data for this time slot (calendar spine gap).
 
       - name: average_speed
         description: |
           The average speed of vehicles detected during the hour.
-          Can be NULL if the sensor failed to report data for this time slot.
+          Will be NULL if the sensor failed to report data for this time slot.
 
       # --- Data Quality Flags ---
       - name: is_ghost_reading
@@ -66,6 +112,7 @@ models:
           Returns TRUE if:
           - Cars counted = 0 but Speed > 0 (Movement detected without vehicles).
           - Cars counted > 0 but Speed = 0 (Vehicles detected but no movement).
+          Defaults to FALSE for missing data (NULLs).
         tests:
           - not_null
 
@@ -73,43 +120,27 @@ models:
         description: >
           Boolean flag indicating a potential sensor failure or lack of traffic.
           Returns TRUE if both counted_cars and average_speed are exactly 0.
+          Defaults to FALSE for missing data (NULLs).
         tests:
           - not_null
 
       - name: is_impossible_speed
         description: >
           Boolean flag for physically unlikely data.
-          Returns TRUE if average_speed exceeds 130 (units assumed based on context).
+          Returns TRUE if average_speed exceeds 130 km/h.
+          Defaults to FALSE for missing data (NULLs).
         tests:
           - not_null
 
       - name: is_quality
         description: >
-          Master quality flag. Returns TRUE only if the record passes all quality checks.
+          Master quality flag. Returns TRUE only if the record passes all quality checks 
+          AND has valid source data.
+          
           A record is considered low quality (FALSE) if:
           - It is a ghost reading.
           - The sensor is dead.
           - The speed is impossible.
-          - Traffic metrics are NULL (missing data).
+          - Traffic metrics are NULL (missing data generated by the calendar spine).
         tests:
           - not_null
-
-
-  - name: dim_roads
-    description: |
-      Normalized road names and road metadata derived from stg_traffic.
-      Applies mapping rules to standardize Greek road names.
-    columns:
-      - name: device_id
-        description: Unique identifier for the traffic device.
-        tests:
-          - not_null
-
-      - name: road_name
-        description: Normalized road name after applying mapping rules (e.g., 'Λ. ΑΘΗΝΩΝ' -> 'ΑΘΗΝΩΝ').
-        tests:
-          - not_null
-
-      - name: road_info
-        description: Additional metadata or descriptive information about the road.
-
