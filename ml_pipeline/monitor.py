@@ -1,16 +1,15 @@
 import os
-import json
-import duckdb
-import pandas as pd
-import mlflow
-import yaml
-from mlflow.tracking import MlflowClient
-from mlflow.artifacts import download_artifacts
-from dotenv import load_dotenv
-from loguru import logger
 
+import duckdb
+import mlflow
+import pandas as pd
+import yaml
+from dotenv import load_dotenv
 from evidently import Report
 from evidently.presets import DataDriftPreset
+from loguru import logger
+from mlflow.artifacts import download_artifacts
+from mlflow.tracking import MlflowClient
 
 load_dotenv()
 

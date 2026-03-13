@@ -12,4 +12,5 @@ dependencies = [
     "pyaml>=26.2.1",
     "python-dotenv>=1.2.2",
     "evidently>=0.7.21",
+    "duckdb>=1.4.4",
 ]

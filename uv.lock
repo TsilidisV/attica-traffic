@@ -196,6 +196,7 @@ source = { virtual = "ml_pipeline" }
 dependencies = [
     { name = "category-encoders" },
     { name = "dagshub" },
+    { name = "duckdb" },
     { name = "evidently" },
     { name = "holidays" },
     { name = "loguru" },
@@ -209,6 +210,7 @@ dependencies = [
 requires-dist = [
     { name = "category-encoders", specifier = ">=2.9.0" },
     { name = "dagshub", specifier = ">=0.6.8" },
+    { name = "duckdb", specifier = ">=1.4.4" },
     { name = "evidently", specifier = ">=0.7.21" },
     { name = "holidays", specifier = ">=0.91" },
     { name = "loguru", specifier = ">=0.7.3" },
