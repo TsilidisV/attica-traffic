@@ -133,7 +133,12 @@ def get_twin_multiple(df):
 
     # 1. Create a selection for interactivity (Legacy Syntax)
     # In Altair 4, use 'selection_multi' instead of 'selection_point'
-    highlight = alt.selection_multi(fields=["road_name"], bind="legend")
+    highlight = alt.selection_point(
+        fields=["road_name"], 
+        bind="legend",
+        on="click",
+        empty=True # 'False' means nothing selected = dimmed. 'True' means all visible.
+    )
 
     # 2. Shared Base
     base = alt.Chart(df).encode(
@@ -161,7 +166,7 @@ def get_twin_multiple(df):
             ),
             opacity=alt.condition(highlight, alt.value(1), alt.value(0.1)),
         )
-        .add_selection(highlight)
+        .add_params(highlight)
     )
 
     # 4. Volume Line (Right Axis, Dashed)
@@ -192,38 +197,43 @@ def get_twin_multiple(df):
 
 
 def get_stacked_bars(df):
+    # Create a selection object
+    selection = alt.selection_point(
+        fields=["Label"], 
+        bind="legend",
+        on="click",
+        empty=True # 'False' means nothing selected = dimmed. 'True' means all visible.
+    )
 
     chart = (
         alt.Chart(df)
         .transform_fold(
-            ["dead_percent", "missing_reading_percent"], as_=["Error Type", "Percent"]
+            ["dead_percent", "missing_reading_percent"], 
+            as_=["Error Type", "Percent"]
         )
         .transform_calculate(
-            # This creates a new field 'Label' with clean names
             Label="datum['Error Type'] === 'dead_percent' ? 'Dead Readings' : 'Missing Readings'"
         )
         .mark_bar()
         .encode(
-            x=alt.X(
-                "date:T", title="Date", axis=alt.Axis(format="%b %Y", labelAngle=-45)
+            x=alt.X("date:T", title="Date", axis=alt.Axis(format="%b %Y", labelAngle=-45)),
+            y=alt.Y("Percent:Q", title="Percent of bad readings", axis=alt.Axis(format="%")),
+            color=alt.Color("Label:N",
+                            scale=alt.Scale(scheme="category10"),
+                            legend=alt.Legend(
+                                title="Error category",
+                                orient="bottom",
+                            )
             ),
-            y=alt.Y("Percent:Q", title="Percent of bad readings"),
-            # Use the new 'Label' field for color
-            color=alt.Color(
-                "Label:N",
-                legend=alt.Legend(title="Error category"),
-                scale=alt.Scale(scheme="tableau10"),
-            ),
+            # Add opacity binding to the selection
+            opacity=alt.condition(selection, alt.value(1), alt.value(0.2)),
             tooltip=[
                 alt.Tooltip("date:T", title="Date", format="%B %Y"),
-                alt.Tooltip("Label:N", title="Category"),  # Use Label here too
-                alt.Tooltip(
-                    "Percent:Q", title="Percent", format=".3"
-                ),  # Format as percentage
+                alt.Tooltip("Label:N", title="Category"),
+                alt.Tooltip("Percent:Q", title="Percent", format=".1%"),
             ],
         )
-        .properties(width=700, height=500, title="Bad Data Readings by Type")
-        .interactive()
+        .add_params(selection)
+        .properties(width=700, height=500, title="Bad Data Readings (Interactive)")
     )
-
     return chart
