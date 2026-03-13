@@ -18,6 +18,7 @@ try:
     DB_NAME = config["data"]["db_name"]
     SCHEMA_NAME = config["data"]["schema_name"]
     TABLE_NAME = config["data"]["table_name"]
+    LOOKBACK = config["data"]["lookback"]
 except FileNotFoundError:
     logger.error("config.yaml not found in the root directory.")
     raise
@@ -82,10 +83,9 @@ def load_optimized_data() -> pl.DataFrame:
     logger.info(f"Connecting to MotherDuck database: {DB_NAME}...")
     con = get_motherduck_conn()
 
-    # TODO: adding "AND processed_date >= CURRENT_DATE - INTERVAL 1 YEAR"
-    # improves model performance and accuracy
-    # another idea is to pass sample_weight to gradient boosting model.
-    # TODO: lookback is a hparam -> config
+
+    # NOTE: Training on latest data improves performance
+    # Another idea is to pass sample_weight to gradient boosting model.
     query = f"""
         SELECT 
             device_id,                
@@ -100,7 +100,7 @@ def load_optimized_data() -> pl.DataFrame:
         WHERE average_speed IS NOT NULL
           AND average_speed > 2
           AND average_speed < 130
-          AND processed_date >= CURRENT_DATE - INTERVAL 1 YEAR
+          AND processed_date >= CURRENT_DATE - INTERVAL {LOOKBACK} DAY
     """
 
     logger.debug(f"Executing SQL Query:\n{query}")

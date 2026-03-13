@@ -15,6 +15,9 @@ from requests.exceptions import RequestException, Timeout
 # --- Constant ---
 API_URL = "https://bluerrose-attica-traffic-api.hf.space/predict"
 
+DAGSHUB_USERNAME = st.secrets["DAGSHUB_USERNAME"]
+DAGSHUB_REPO = st.secrets["DAGSHUB_REPO"]
+
 try:
     with open("config.yaml", "r") as file:
         config = yaml.safe_load(file)
@@ -82,15 +85,13 @@ def call_hf_api(road_name, target_date):
 def get_drift_report():
     try:
         # 1. Setup MLflow
-        #TODO: 
-        track_uri = "https://dagshub.com/vtsilidis/mlflow-track-repo-test.mlflow"
+        track_uri = f"https://dagshub.com/{DAGSHUB_USERNAME}/{DAGSHUB_REPO}.mlflow"
         os.environ["MLFLOW_TRACKING_URI"] = track_uri
         mlflow.set_tracking_uri(track_uri)
         
         client = MlflowClient()
         
-        # 2. Find the latest run in the 'traffic_monitoring' experiment
-        #TODO: traffic_monitoring -> config
+        # 2. Find the latest run in the 'traffic_monitoring' experiments
         experiment = client.get_experiment_by_name(MLFLOW_MONITOR_EXPERIMENT_NAME)
         
         if experiment is None:

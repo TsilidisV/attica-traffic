@@ -5,6 +5,7 @@ data:
   table_name: "mrt_traffic_road"          
   test_size: 0.2
   random_state: 42
+  lookback: 365 # how many days back the training data look
 
 # Model hyperparameters
 model:
@@ -20,10 +21,11 @@ model:
 
 # mlflow
 mlflow:
-  model_name: 'Attica_Traffic_Model'
+  model_name: 'attica_traffic_model'
+  experiment_name: 'ml_model_traffic_speed_prediction'
 
 # Drift reporting
 drift:
-  mlflow_monitor_experiment_name: 'traffic_monitoring'
+  mlflow_monitor_experiment_name: 'data_drift_monitoring'
   sample_size: 100000 # how many rows are saved to mlflow for use as "reference"
   lookback: 14 # how many days back the "current" monitoring data look

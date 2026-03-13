@@ -45,7 +45,8 @@ SEED = config["data"]["random_state"]
 MODEL_PARAMS = config["model"]
 MODEL_PARAMS["random_state"] = SEED
 SAMPLE_SIZE = config["drift"]["sample_size"]
-
+MODEL_NAME = config["mlflow"]["model_name"]
+EXPERIMENT_NAME = config["mlflow"]["experiment_name"]
 
 def build_pipeline(model_params=None):
     """Factory function to build the ML pipeline."""
@@ -97,7 +98,7 @@ def main():
     model_pipeline = build_pipeline(MODEL_PARAMS)
 
     # --- 5. TRAIN AND LOG ---
-    mlflow.set_experiment("Traffic_Speed_Forecasting_Production")
+    mlflow.set_experiment(EXPERIMENT_NAME)
 
     with mlflow.start_run(run_name="pipeline_target_encoded"):
         # Logging training dataset metadata for data lineage
@@ -154,7 +155,7 @@ def main():
             signature=signature,
             input_example=X_train.iloc[:5],
             code_paths=[current_dir],
-            registered_model_name="Attica_Traffic_Model"
+            registered_model_name=MODEL_NAME
         )
 
         logger.info("Saving road_name and device_id mapping to MLflow...")
