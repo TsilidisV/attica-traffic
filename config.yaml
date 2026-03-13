@@ -20,4 +20,5 @@ model:
 
 # Drift reporting
 drift:
+  mlflow_monitor_experiment_name: 'traffic_monitoring'
   sample_size: 100000

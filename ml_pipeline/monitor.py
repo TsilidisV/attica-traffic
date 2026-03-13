@@ -20,6 +20,7 @@ try:
     DB_NAME = config["data"]["db_name"]
     SCHEMA_NAME = config["data"]["schema_name"]
     TABLE_NAME = config["data"]["table_name"]
+    MLFLOW_MONITOR_EXPERIMENT_NAME = config["drift"]["mlflow_monitor_experiment_name"]
 except FileNotFoundError:
     logger.error("config.yaml not found in the root directory.")
     raise
@@ -37,6 +38,7 @@ def main():
     
     # 2. FETCH REFERENCE DATA FROM LATEST MODEL
     client = MlflowClient()
+    # TODO: config
     model_name = "Attica_Traffic_Model"
     
     logger.info(f"Looking up latest registered version of '{model_name}'...")
@@ -106,7 +108,7 @@ def main():
     logger.info(f"Drift Detection Status: {dataset_drifted} (Share: {drift_share:.2f})")
 
     # 5. LOG TO MLFLOW
-    mlflow.set_experiment("data_drift_monitoring")
+    mlflow.set_experiment(MLFLOW_MONITOR_EXPERIMENT_NAME)
     
     with mlflow.start_run(run_name="daily_drift_check"):
         mlflow.log_metric("dataset_drift_detected", int(dataset_drifted))

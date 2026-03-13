@@ -186,7 +186,7 @@ docker run -p 8000:7860 --env-file ./.env my-api-image-test
 * [x] **Phase 5:** Model deployment through an API (FastAPI)
 * [_] **Phase 6:** ML model monitoring (Evidently AI)
 
-
+## TODO: data drift monitoring: model used to train on the full data set, but limiting to the last year improved results. By looking at the evidently report, I realized that a left-shifted distribution meant slower traffic, and deduced that naive retraining wouldn't fix it because of historical data dilution.
 
 
 

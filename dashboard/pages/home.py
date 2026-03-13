@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import figures
 import pytz
 import streamlit as st
+import streamlit.components.v1 as components
 from data import (
     get_daily_cache_key,
     get_health,
@@ -10,7 +11,7 @@ from data import (
     get_homepage_kpi,
     get_volatility_data_last_30,
 )
-from predict import call_hf_api
+from predict import call_hf_api, get_drift_report
 
 current_cache_key = get_daily_cache_key()
 
@@ -42,40 +43,60 @@ For a quick overview of the last 30 days, check out bellow. For analytics concer
 """
 
 container = st.container(border=True)
+
 with container:
-    col1, col2 = st.columns(2)
+    tab1, tab2 = st.tabs(["🔮 Live predictions", "🖥️ Data drift monitoring"])
 
-    with col1:
-        # Input for Road Name (Pre-filled with the example value)
-        road_name = st.selectbox(
-            "Select a road",
-            options=sorted(df_vol["road_name"].unique()),
-            index=33,  # default to "ΚΗΦΙΣΙΑΣ"
-        )
+    with tab1:
+        col1, col2, col3 = st.columns(3)
 
-    with col2:
-        # Input for Date time
-        # We set the current datetime and replace mins with 0 and add 1 hour
-        default_date = datetime.now(pytz.timezone("Europe/Athens")).replace(
-            minute=0, second=0, microsecond=0
-        ) + timedelta(hours=1)
-        target_date = st.datetime_input(
-            "Target date",
-            value=default_date,
-            step=60 * 60,  # 1 hour
-        )
+        with col1:
+            # Input for Road Name (Pre-filled with the example value)
+            road_name = st.selectbox(
+                "Select a road",
+                options=sorted(df_vol["road_name"].unique()),
+                index=33,  # default to "ΚΗΦΙΣΙΑΣ"
+            )
 
-    if st.button("Predict Traffic Speed", type="primary"):
-        prediction = call_hf_api(road_name, target_date)
+        with col2:
+            # Input for Date time
+            # We set the current datetime and replace mins with 0 and add 1 hour
+            default_date = datetime.now(pytz.timezone("Europe/Athens")).replace(
+                minute=0, second=0, microsecond=0
+            ) + timedelta(hours=1)
+            target_date = st.datetime_input(
+                "Target date",
+                value=default_date,
+                step=60 * 60,  # 1 hour
+            )
 
-        predicted_speed = prediction.get("average_predicted_speed_kmh", "N/A")
-        active_devices = prediction.get("active_devices_used", "N/A")
+        with col3:
+            st.markdown("<br>", unsafe_allow_html=True) # Spacer
+            submitted = st.button("Get prediction",
+                type="primary",
+                use_container_width=True
+            )
 
-        st.metric(
-            label=f"Predicted speed for {road_name} at {target_date.strftime('%Y-%m-%d %H:%M')}",
-            value=f"{predicted_speed} Km/h",
-        )
+        if submitted:
+            prediction = call_hf_api(road_name, target_date)
 
+            predicted_speed = prediction.get("average_predicted_speed_kmh", "N/A")
+            active_devices = prediction.get("active_devices_used", "N/A")
+
+            st.metric(
+                label=f"Predicted speed for {road_name} at {target_date.strftime('%Y-%m-%d %H:%M')}",
+                value=f"{predicted_speed} Km/h",
+            )
+
+    with tab2:
+        """
+        ### Data drift report
+        Automatically fetched from DagsHub MLflow Artifacts.
+        """
+        if st.button("Fetch latest drift report", type="primary"):
+            with st.spinner("Connecting to DagsHub and downloading latest report..."):
+                html_content = get_drift_report()
+                components.html(html_content, height=1000, scrolling=True)
 
 """
 ##  Last 30 Days Summary
