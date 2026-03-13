@@ -36,7 +36,6 @@ def main():
     track_uri = f"https://dagshub.com/{DAGSHUB_USERNAME}/{DAGSHUB_REPO}.mlflow"
     os.environ["MLFLOW_TRACKING_USERNAME"] = DAGSHUB_USERNAME
     os.environ["MLFLOW_TRACKING_PASSWORD"] = DAGSHUB_TOKEN
-    os.environ["MLFLOW_TRACKING_URI"] = track_uri
     mlflow.set_tracking_uri(track_uri)
     
     # 2. FETCH REFERENCE DATA FROM LATEST MODEL
