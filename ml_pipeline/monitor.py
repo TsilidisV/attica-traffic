@@ -122,7 +122,7 @@ def main():
     github_output = os.getenv("GITHUB_OUTPUT")
     if github_output:
         with open(github_output, "a") as f:
-            is_drifting = "true" if dataset_drifted else "false"
+            is_drifting = "true" if drift_share > 0.5 else "false"
             f.write(f"drift_detected={is_drifting}\n")
             f.write(f"drift_share={drift_share:.2f}\n")
 
