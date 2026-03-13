@@ -1,0 +1,54 @@
+name: Weekly Data Drift Monitor
+
+on:
+  schedule:
+    # Runs at 08:00 UTC every Monday
+    - cron: '0 8 * * 1'
+  workflow_dispatch: # This allows you to click a "Run workflow" button manually to test it!
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run Drift Monitor
+        id: drift_check # This ID is crucial so we can grab the output variables!
+        env:
+          DAGSHUB_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
+          DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+          MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
+        run: |
+          uv run --package attica-ml python -m ml_pipeline.monitor
+
+      - name: Send Discord Notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          # Grab the variables from Python
+          IS_DRIFTING="${{ steps.drift_check.outputs.drift_detected }}"
+          SHARE="${{ steps.drift_check.outputs.drift_share }}"
+          
+          # Format the message dynamically
+          if [ "$IS_DRIFTING" = "true" ]; then
+            # The loud ALARM
+            MESSAGE="🚨 **ACTION REQUIRED: Attica Traffic Data Drift Detected!** 🚨\nMore than 50% of the features have shifted (Drift Share: \`$SHARE\`).\n\nModel performance may be degrading. Please check the Streamlit Dashboard immediately."
+          else
+            # The quiet HEARTBEAT
+            MESSAGE="✅ **MLOps Heartbeat: Attica Traffic**\nWeekly drift monitoring completed successfully. No significant data drift detected (Drift Share: \`$SHARE\`). System is healthy."
+          fi
+          
+          # Fire the webhook
+          curl -H "Content-Type: application/json" \
+          -d "{\"content\": \"$MESSAGE\"}" \
+          $DISCORD_WEBHOOK

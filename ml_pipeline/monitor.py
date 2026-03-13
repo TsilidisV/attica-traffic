@@ -119,6 +119,14 @@ def main():
     os.remove(html_path)
     os.remove(json_path)
     
+    # github actions integration
+    github_output = os.getenv("GITHUB_OUTPUT")
+    if github_output:
+        with open(github_output, "a") as f:
+            is_drifting = "true" if dataset_drifted else "false"
+            f.write(f"drift_detected={is_drifting}\n")
+            f.write(f"drift_share={drift_share:.2f}\n")
+
     logger.success("Monitoring complete! Reports saved to MLflow.")
 
 if __name__ == "__main__":
