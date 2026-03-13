@@ -10,6 +10,8 @@ from mlflow.artifacts import download_artifacts
 from mlflow.tracking import MlflowClient
 from requests.exceptions import RequestException, Timeout
 
+
+
 # --- Constant ---
 API_URL = "https://bluerrose-attica-traffic-api.hf.space/predict"
 
