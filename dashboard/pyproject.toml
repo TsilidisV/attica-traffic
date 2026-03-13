@@ -8,4 +8,5 @@ dependencies = [
     "loguru>=0.7.3",
     "pyaml>=26.2.1",
     "duckdb>=1.4.4",
+    "mlflow>=3.10.0",
 ]

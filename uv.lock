@@ -145,6 +145,7 @@ dependencies = [
     { name = "altair" },
     { name = "duckdb" },
     { name = "loguru" },
+    { name = "mlflow" },
     { name = "pyaml" },
     { name = "streamlit" },
 ]
@@ -154,6 +155,7 @@ requires-dist = [
     { name = "altair", specifier = "<5" },
     { name = "duckdb", specifier = ">=1.4.4" },
     { name = "loguru", specifier = ">=0.7.3" },
+    { name = "mlflow", specifier = ">=3.10.0" },
     { name = "pyaml", specifier = ">=26.2.1" },
     { name = "streamlit", specifier = ">=1.35.0" },
 ]
