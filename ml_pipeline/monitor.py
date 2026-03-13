@@ -20,6 +20,8 @@ try:
     SCHEMA_NAME = config["data"]["schema_name"]
     TABLE_NAME = config["data"]["table_name"]
     MLFLOW_MONITOR_EXPERIMENT_NAME = config["drift"]["mlflow_monitor_experiment_name"]
+    MODEL_NAME = config["mlflow"]["model_name"]
+    LOOKBACK = config["drift"]["lookback"]
 except FileNotFoundError:
     logger.error("config.yaml not found in the root directory.")
     raise
@@ -28,22 +30,21 @@ def main():
     logger.info("Starting Daily Data Drift Monitoring...")
     
     # 1. SETUP MLFLOW AUTHENTICATION
-    # TODO: use env variables for track_uri
-    track_uri = "https://dagshub.com/vtsilidis/mlflow-track-repo-test.mlflow"
-    os.environ["MLFLOW_TRACKING_URI"] = track_uri
-    os.environ["MLFLOW_TRACKING_USERNAME"] = os.getenv("DAGSHUB_USERNAME")
+    DAGSHUB_USERNAME = os.getenv("DAGSHUB_USERNAME")
+    DAGSHUB_REPO = os.getenv("DAGSHUB_REPO")
+
+    track_uri = f"https://dagshub.com/{DAGSHUB_USERNAME}/{DAGSHUB_REPO}.mlflow"
+    os.environ["MLFLOW_TRACKING_USERNAME"] = DAGSHUB_USERNAME
     os.environ["MLFLOW_TRACKING_PASSWORD"] = os.getenv("DAGSHUB_TOKEN")
     mlflow.set_tracking_uri(track_uri)
     
     # 2. FETCH REFERENCE DATA FROM LATEST MODEL
     client = MlflowClient()
-    # TODO: config
-    model_name = "Attica_Traffic_Model"
     
-    logger.info(f"Looking up latest registered version of '{model_name}'...")
+    logger.info(f"Looking up latest registered version of '{MODEL_NAME}'...")
     try:
         # The modern way to search models without deprecated "stages"
-        versions = client.search_model_versions(f"name='{model_name}'")
+        versions = client.search_model_versions(f"name='{MODEL_NAME}'")
         if not versions:
             logger.error("No registered model found.")
             return
@@ -67,11 +68,10 @@ def main():
         token = os.getenv("MOTHERDUCK_TOKEN")
         con = duckdb.connect(f"md:attica_traffic?motherduck_token={token}")
         
-        # TODO: lookback as a hyperparameter
         query = f"""
             SELECT device_id, road_name, average_speed
             FROM {DB_NAME}.{SCHEMA_NAME}.{TABLE_NAME} 
-            WHERE processed_date >= CURRENT_DATE - INTERVAL 14 DAY
+            WHERE processed_date >= CURRENT_DATE - INTERVAL {LOOKBACK} DAY
         """
         current_df = con.sql(query).df()
         

@@ -18,7 +18,12 @@ model:
   # Index 1 will be the Ordinal-Encoded road_name (categorical).
   categorical_features: [1]
 
+# mlflow
+mlflow:
+  model_name: 'Attica_Traffic_Model'
+
 # Drift reporting
 drift:
   mlflow_monitor_experiment_name: 'traffic_monitoring'
   sample_size: 100000
+  lookback: 14 # how many days back the "current" monitoring data look
