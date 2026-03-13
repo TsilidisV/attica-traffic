@@ -25,5 +25,5 @@ mlflow:
 # Drift reporting
 drift:
   mlflow_monitor_experiment_name: 'traffic_monitoring'
-  sample_size: 100000
+  sample_size: 100000 # how many rows are saved to mlflow for use as "reference"
   lookback: 14 # how many days back the "current" monitoring data look
