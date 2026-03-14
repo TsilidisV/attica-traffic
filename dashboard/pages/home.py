@@ -88,6 +88,9 @@ with container:
                 value=f"{predicted_speed} Km/h",
             )
 
+            with st.expander("See full json object"):
+                st.json(prediction)
+
     with tab2:
         """
         ### Data drift report

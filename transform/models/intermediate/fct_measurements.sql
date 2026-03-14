@@ -16,8 +16,9 @@ WITH device_hours AS (
     {% if is_incremental() %}
         -- Only generate grid rows for hours we haven't processed yet
         -- COALESCE exists in case the table is empty (dropped or something)
+        -- Look 2 days back in case data arrive early
         WHERE h.hourly_slot > (
-            SELECT COALESCE(MAX(processed_at), '1970-01-01 00:00:00'::TIMESTAMP) 
+            SELECT CAST(COALESCE(MAX(processed_at), '1970-01-01 00:00:00'::TIMESTAMP) - INTERVAL 2 DAY AS TIMESTAMP)
             FROM {{ this }}
         )
     {% endif %}
@@ -30,8 +31,9 @@ source_data AS (
     {% if is_incremental() %}
         -- Only generate grid rows for hours we haven't processed yet
         -- COALESCE exists in case the table is empty (dropped or something)
+        -- Look 2 days back in case data arrive early
         WHERE processed_at >= (
-            SELECT COALESCE(MAX(processed_at), '1970-01-01 00:00:00'::TIMESTAMP) 
+            SELECT CAST(COALESCE(MAX(processed_at), '1970-01-01 00:00:00'::TIMESTAMP) - INTERVAL 2 DAY AS TIMESTAMP)
             FROM {{ this }}
         )
     {% endif %}

@@ -217,7 +217,7 @@ def get_stacked_bars(df):
         .mark_bar()
         .encode(
             x=alt.X("date:T", title="Date", axis=alt.Axis(format="%b %Y", labelAngle=-45)),
-            y=alt.Y("Percent:Q", title="Percent of bad readings", axis=alt.Axis(format="%")),
+            y=alt.Y("Percent:Q", title="Percent of bad readings (%)"),
             color=alt.Color("Label:N",
                             scale=alt.Scale(scheme="category10"),
                             legend=alt.Legend(
@@ -230,7 +230,7 @@ def get_stacked_bars(df):
             tooltip=[
                 alt.Tooltip("date:T", title="Date", format="%B %Y"),
                 alt.Tooltip("Label:N", title="Category"),
-                alt.Tooltip("Percent:Q", title="Percent", format=".1%"),
+                alt.Tooltip("Percent:Q", title="Percent", format=".1f"),
             ],
         )
         .add_params(selection)
