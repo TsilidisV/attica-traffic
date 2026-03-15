@@ -49,7 +49,7 @@ def get_connection():
     # Connect explicitly to your database
     return duckdb.connect(f"md:attica_traffic?motherduck_token={token}")
 
-@st.cache_data
+@st.cache_data(max_entries=1)
 def get_homepage_kpi(cache_key):
     con = get_connection()
 
@@ -68,7 +68,7 @@ def get_homepage_kpi(cache_key):
     }
 
 
-@st.cache_data
+@st.cache_data(max_entries=1)
 def get_heatmap_last_30(cache_key):
     con = get_connection()
 
@@ -83,7 +83,7 @@ def get_heatmap_last_30(cache_key):
     return con.execute(query).df()
 
 
-@st.cache_data
+@st.cache_data(max_entries=1)
 def get_spatiotemporal(cache_key):
     con = get_connection()
 
@@ -101,7 +101,7 @@ def get_spatiotemporal(cache_key):
     return con.execute(query).df()
 
 
-@st.cache_data
+@st.cache_data(max_entries=1)
 def get_volatility_data_last_30(cache_key):
     con = get_connection()
 
@@ -117,7 +117,7 @@ def get_volatility_data_last_30(cache_key):
     return con.execute(query).df()
 
 
-@st.cache_data
+@st.cache_data(max_entries=1)
 def get_volatility_data(cache_key):
     con = get_connection()
 
@@ -133,7 +133,7 @@ def get_volatility_data(cache_key):
     return con.execute(query).df()
 
 
-@st.cache_data
+@st.cache_data(max_entries=1)
 def get_speed_count(cache_key):
     con = get_connection()
 
@@ -150,7 +150,7 @@ def get_speed_count(cache_key):
     return con.execute(query).df()
 
 
-@st.cache_data
+@st.cache_data(max_entries=1)
 def get_health(cache_key):
     con = get_connection()
 

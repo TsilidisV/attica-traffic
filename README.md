@@ -1,4 +1,4 @@
-<h1 align="center">🚗 Attica Mobility Analytics! 🚦</h1>
+<h1 align="center">🚗 Attica Mobility! 🚦</h1>
 <h2 align="center"> From Ingestion to Prediction: An End-to-End Data & ML Pipeline </h2>
 
 <p align="center">
@@ -11,6 +11,7 @@
 </p>
 
 <p align="center">
+  <i>• What's traffic going to be like in a particular road?</i><br> 
   <i>• Which is the busiest time slot?</i><br> 
   <i>• Does total vehicle volume correlate with average network speed?</i><br>
   <i>• Which are the most and least volatile roads?</i><br>
@@ -20,40 +21,55 @@
 <p align="center">
   <a href="https://www.python.org/"><img height="42" src="https://cdn.simpleicons.org/python/3776AB" /></a>
   <a href="https://pytest.org/"><img height="42" src="https://cdn.simpleicons.org/pytest/0A9EDC" /></a>
-  <a href="https://scikit-learn.org/"><img height="42" src="https://cdn.simpleicons.org/scikitlearn/F7931E" /></a>
-  <a href="https://mlflow.org/"><img height="42" src="https://cdn.simpleicons.org/mlflow/0194E2" /></a>
   <a href="https://docs.github.com/en/actions/"><img height="42" src="https://cdn.simpleicons.org/githubactions/2088FF" /></a>
   <a href="https://huggingface.co/docs/datasets/index"><img height="42" src="https://cdn.simpleicons.org/huggingface/FFD21E" /></a>
-  <a href="https://www.getdbt.com//"><svg height="42" fill="#ff694a" viewBox="0 0 24 24" role="img" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.048"></g><g id="SVGRepo_iconCarrier"><path d="M17.9 9.376a8.149 8.149 0 0 0-3.042-3.12l1.771.838a10.287 10.287 0 0 1 3.74 3l3.234-5.929a2.855 2.855 0 0 0-.061-2.96 2.726 2.726 0 0 0-3.567-.872L14.1 3.543a4.361 4.361 0 0 1-4.176 0L4.177.408a2.854 2.854 0 0 0-2.96.063 2.726 2.726 0 0 0-.872 3.566L3.55 9.91a4.361 4.361 0 0 1 0 4.177L.423 19.83a2.86 2.86 0 0 0 .085 2.997 2.726 2.726 0 0 0 3.545.839l6.058-3.305a10.288 10.288 0 0 1-3.005-3.746l-.838-1.77a8.148 8.148 0 0 0 3.12 3.042l10.584 5.779a2.726 2.726 0 0 0 3.543-.837 2.87 2.87 0 0 0 .08-3.001L17.9 9.376zm3.38-7.735a1.09 1.09 0 1 1 0 2.181 1.09 1.09 0 0 1 0-2.18zM2.744 3.822a1.09 1.09 0 1 1 0-2.18 1.09 1.09 0 0 1 0 2.18zm0 18.536a1.09 1.09 0 1 1 0-2.18 1.09 1.09 0 0 1 0 2.18zM13.103 10.91a2.174 2.174 0 0 0-2.18 2.168 2.174 2.174 0 0 0 .704 1.61 2.72 2.72 0 1 1 .758-5.386 2.72 2.72 0 0 1 2.314 2.314 2.162 2.162 0 0 0-1.596-.706zm8.177 11.45a1.09 1.09 0 1 1 0-2.182 1.09 1.09 0 0 1 0 2.181z"></path></g></svg></a>
+  <a href="https://www.getdbt.com/"><img height="42" src="https://raw.githubusercontent.com/TsilidisV/TsilidisV/refs/heads/main/pictures/dbt.svg" /></a>
   <a href="https://motherduck.com/"><img height="42" src="https://cdn.simpleicons.org/duckdb/FFF000" /></a>
+  <a href="https://scikit-learn.org/"><img height="42" src="https://cdn.simpleicons.org/scikitlearn/F7931E" /></a>
+  <a href="https://mlflow.org/"><img height="42" src="https://cdn.simpleicons.org/mlflow/0194E2" /></a>
+  <a href="https://docker.com/"><img height="42" src="https://cdn.simpleicons.org/docker/2496ED" /></a>
+  <a href="https://fastapi.tiangolo.com/"><img height="42" src="https://cdn.simpleicons.org/fastapi/009688" /></a>
   <a href="https://streamlit.io/"><img height="42" src="https://cdn.simpleicons.org/streamlit/FF4B4B" /></a>
+  
   
 </p>
 
 <p align="center">
   <a href="#-architecture">Architecture</a> |
-  <a href="#-key-features">Key Features</a> |
+  <a href="#-key-technical-features">Key Features</a> |
   <a href="#-project-structure">Project Structure</a> |
   <a href="#-getting-started">Getting Started</a> | 
   <a href="#-roadmap">Roadmap</a>
 </p>
 
----
-
 
 ## 🏗 Architecture
 
-This project uses a "Write Daily, Compact Monthly" medallion architecture to balance data freshness with storage efficiency and API rate limits.
+The system is designed as a modern Lakehouse architecture, leveraging Hugging Face as a cost-effective Data Lake and MotherDuck as a serverless Data Warehouse.
 
-1. *Bronze*: Through **Python** and *orchestrated* by **Github Actions**, API responses are timestamped with metadata, converted to *Parquet*, and merged into monthly files to create a stable, immutable foundation for all downstream processing, while avoiding the *Small File Problem* and API rate limits of the project's *Data Lake*, i.e., **HuggingFace**.
-2. *Silver*: Using **dbt** (also orchestrated by GitHub Actions), the raw data is typecasted, renamed for clarity, and deduplicated based on business logic. This layer creates a clean, consistent, and high-performance foundation inside our Data Warehouse, i.e, **MotherDuck**.
-3. *Gold*: Cleaned silver models are joined and aggregated into final mart tables that are optimized specifically for reporting and high-level analytics, which are then served directly to the end-user via a **Streamlit** dashboard.
+- Ingestion: Python scripts extract data from the data.gov.gr API, adding metadata and handling schema enforcement.
+- Storage: Raw data are stored in Parquet format on Hugging Face (Data Lake). A custom compaction logic merges daily files into monthly files to optimize storage and query performance.
+- Transformation: dbt (Data Build Tool) handles the T in ELT, modeling data in MotherDuck, via a medallion architecture:
+  - *Bronze*: Through **Python** and *orchestrated* by **Github Actions**, API responses are timestamped with metadata, converted to *Parquet*, and merged into monthly files to create a stable, immutable foundation for all downstream processing, while avoiding the *Small File Problem* and API rate limits of the project's *Data Lake*, i.e., **HuggingFace**.
+  - *Silver*: Using **dbt** (also orchestrated by GitHub Actions), the raw data is typecasted, renamed for clarity, and deduplicated based on business logic. This layer creates a clean, consistent, and high-performance foundation inside our Data Warehouse, i.e, **MotherDuck**.
+  - *Gold*: Cleaned silver models are joined and aggregated into final mart tables that are optimized specifically for reporting and high-level analytics, which are then served directly to the end-user via a **Streamlit** dashboard.
+- Machine Learning: An `HistGradientBoostingRegressor` model predicts road speeds, with experiments tracked via MLflow and data drift monitoring handled by Evidently AI. If drift is detected, a discord notification is sent.
+- Deployment: A FastAPI service containerized with Docker serves predictions, while a Streamlit dashboard provides business intelligence.
+- Orchestration: GitHub Actions manages the entire lifecycle, from daily ingestion to CI/CD triggers.
 
 
+## 🛠 Tech Stack
 
----
+| Category | Tools |
+| --- | --- |
+| **Data Engineering** | dbt, MotherDuck |
+| **MLOps** | Scikit-learn, MLflow, Dagshub, Evidently AI, Discord Webhooks |
+| **DevOps / CI/CD** | GitHub Actions, Docker, Pytest |
+| **Serving / UI** | FastAPI, Hugging Face Spaces, Streamlit |
 
-## ✨ Key Features
+
+## 🌟 Key Technical Features
+
 
 ### 1. Resilience Ingestion
 
@@ -61,20 +77,42 @@ This project uses a "Write Daily, Compact Monthly" medallion architecture to bal
 * **Atomic Transactions:** Ingests data to a local staging area before performing a bulk upload to Hugging Face, ensuring no partial or corrupted files land in the lake.
 * **CI/CD Awareness:** The `daily` command triggers a **Red 🔴 Alert** (Exit Code 1) on missing data, while the `backfill` command is fault-tolerant for historical recovery.
 
-### 2. The Compaction Strategy
+### 2. Robust Data Engineering
+
+* **Small File Problem Mitigation:** Implemented a monthly compaction job that merges daily Parquet files, reducing metadata overhead and improving read speeds.
+* **Data Modeling:** Followed a modular dbt structure:
+  * **Staging:** Typecasting and deduplication.
+  * **Intermediate:** Fact/Dimension modeling with standardized road naming   conventions.
+  * **Marts:** Business-ready tables focusing on KPIs, hourly trends, and   sensor health.
+  
+* **Data Quality:** Built-in flagging system in the transformation layer to   identify dead sensors, ghost readings, and missing values.
+
+### 3. MLOps & Monitoring
+
+* **Feature Engineering:** Custom pipeline within the ML module to process temporal and spatial features for the Gradient Boosting model.
+* **Experiment Tracking:** Integrated MLflow (hosted on Dagshub) to log hyperparameters and model versions.
+* **Drift Detection:** Weekly **Evidently AI** jobs analyze data drift. If the feature distribution shifts significantly, an automated alert is fired to **Discord** via webhooks.
+
+
+### 4. Automation & CI/CD
+
+* **Automated Deployment:** GitHub Actions automatically syncs changes to Hugging Face Spaces. If dependencies change, `requirements.txt` for the streamlit dashboard is dynamically updated.
+* **Quality Gates:** CI pipeline runs `pytest` on every push to ensure code stability.
+* **Scheduled Orchestration:**
+  * **Daily:** Ingestion & dbt transformations.
+  * **Weekly:** Drift monitoring.
+  * **Monthly:** File compaction/maintenance.
+
+
+### 5. The Compaction Strategy
 
 Hugging Face (and many data lakes) struggles with thousands of tiny files. To solve this, we run a two-phase process:
 
 - **Daily**: A small file is uploaded for yesterday's data (e.g., `2025-02-11.parquet`).
 - **Maintenance (Monthly)**: A CRON job downloads all daily files for a previous month, merges them into a single file (e.g., `compact-2025-02.parquet`), and deletes the small originals.
 
-### 3. Separation of Concerns
 
-* **Python (EL):** Handles networking, retries, partitioning, and file formats.
-* **dbt (T):** Handles schema enforcement, type casting (e.g., `String`  `Float`), and business logic.
-* **MotherDuck:** Provides a serverless cloud data warehouse for the final analytics.
-
-### 4. Observability
+### 6. Observability
 
 This project uses `loguru` for professional-grade logging:
 
@@ -83,42 +121,38 @@ This project uses `loguru` for professional-grade logging:
 * **GitHub Actions Integration:** Full traceback capture allows for rapid debugging of pipeline failures directly from the Actions UI.
 
 
-### 5. Transformation Process
-
-* **Robust Data Cleaning:** The pipeline implements a Medallion architecture that standardizes inconsistent road names and deduplicates raw sensor data to ensure a reliable single source of truth.
-* **Accurate Aggregation Logic:** It calculates volume-weighted average speeds rather than simple averages, preventing low-traffic outliers from skewing the analysis of road conditions.
-* **Dynamic Reporting Windows:** The reporting models utilize dynamic date filtering to automatically generate KPIs for the most recent 30 days of available data, ensuring resilience against pipeline delays. 
----
-
 ## 📂 Project Structure
 
 ```text
-attica-traffic-datalake/
+attica-mobility/
 ├── .github/workflows/
-│   └── daily_pipeline.yml     # Daily Cron & CI/CD logic
-├── api/                       # FastAPI
-├── dashboard/                 # Streamlit dashboard
+    ├── ci.yaml                 # Testing, pushing to HF spaces, etc.
+    ├── daily_pipeline.yaml     # Daily ingestion and transformation
+    ├── drift_monitor.yaml      # Weekly data drift monitoring
+│   └── monthly_maintenance.yml # Monthly data lake compacting
+├── api/                        # FastAPI
+├── dashboard/                  # Streamlit dashboard
 ├── ingestion/
-│   └── ingestion.py           # The EL script
-├── transform/                 # dbt loading, transformations and tests
-    └── models                 # Models with medallion architecture
+│   └── ingestion.py            # The EL script
+├── transform/                  # dbt loading, transformations and tests
+    └── models                  # Models following a medallion architecture
         ├── staging
         ├── intermediate
         └── marts
             └── reporting
 ├── ml_pipeline/
-    ├── feature_engineering.py # Data loading and feature engineering
-    └── train.py               # Trains a HistGradientBoostingRegressor model
-├── tests/                     # pytest tests
-├── logs/                      # Structured, rotated logs
-├── .env.example               # Secret template for tokens and usernames
-├── config.yaml                # Hyperparameters, data split rations, etc.
-├── pyproject.toml             # Centralized 'uv' dependencies
-├── uv.lock                    # Deterministic environment
+    ├── feature_engineering.py  # Data loading and feature engineering
+    ├── train.py                # Trains a HistGradientBoostingRegressor model
+    └── monitor.py              # Data drift monitoring
+├── tests/                      # pytest tests
+├── logs/                       # Structured, rotated logs
+├── .env.example                # Secret template for tokens and usernames
+├── config.yaml                 # Hyperparameters, data split rations, etc.
+├── pyproject.toml              # Centralized 'uv' dependencies
+├── uv.lock                     # Deterministic environment
+├── config.yaml                 # Centralized configuration
 └── README.md
 ```
-
----
 
 ## 🚀 Getting Started
 
@@ -126,8 +160,10 @@ attica-traffic-datalake/
 
 * Python 3.12
 * [uv](https://github.com/astral-sh/uv) (Fast Python package manager)
-* Hugging Face account with a **Write Token** for a dataset and space repo
-* MotherDuck account with a **Access Token**
+* Hugging Face account with a Write Token for a dataset and a spaces repo
+* MotherDuck account with a Access Token
+* Dagshub account with a Token and a repo
+* A discord webhook
 ### Installation & Setup
 
 1. **Clone & Sync:**
@@ -141,7 +177,7 @@ uv sync
 2. **Environment Variables:**
 ```bash
 cp .env.example .env
-# Add your HF_TOKEN, HF_REPO_ID and MOTHERDUCK_TOKEN to the .env file
+# Add your tokens, usernames, repos and webhooks to the .env file
 ```
 
 
@@ -152,10 +188,10 @@ cp .env.example .env
 uv run --package attica-ingestion python ingestion/ingestion.py ingest-daily
 
 # Ingest a specific date
-uv run --package attica-ingestion python ingestion/ingestion.py ingest-daily
+uv run --package attica-ingestion python ingestion/ingestion.py ingest-daily 2023-04-20
 
 # Historical Backfill
-uv run --package attica-ingestion python ingestion/ingestion.py ingest-daily
+uv run --package attica-ingestion python ingestion/ingestion.py backfill 2020-12-01 2021-12-01
 
 # Run dbt and install packages
 uv run --package attica-transform python -c "import dotenv; dotenv.load_dotenv(); import os; os.system('dbt deps --project-dir transform --profiles-dir transform ')"
@@ -163,19 +199,28 @@ uv run --package attica-transform python -c "import dotenv; dotenv.load_dotenv()
 # Run dbt and build models
 uv run --package attica-transform python -c "import dotenv; dotenv.load_dotenv(); import os; os.system('dbt build --project-dir transform --profiles-dir transform --target prod')"
 
-# Run the streamlit dashboard
-uv run --package attica-dashboard streamlit run dashboard/app.py
-
 # Train model
 uv run --package attica-ml python -m ml_pipeline.train  
+
+# Monitor data drift
+uv run --package attica-ml python -m ml_pipeline.monitor  
 
 # Run API
 uv run --package attica-api fastapi dev api/main.py
 # or
 docker build -t my-api-image-test -f api/Dockerfile .
 docker run -p 8000:7860 --env-file ./.env my-api-image-test
+
+# Run the streamlit dashboard
+uv run --package attica-dashboard streamlit run dashboard/app.py
 ```
----
+
+## Challenges & Solutions
+
+- compact logic
+- data drift monitoring: model used to train on the full data set, but limiting to the last year improved results. By looking at the evidently report, I realized that a left-shifted distribution meant slower traffic, and deduced that naive retraining wouldn't fix it because of historical data dilution.
+
+
 
 ## 🗺 Roadmap
 
@@ -184,116 +229,9 @@ docker run -p 8000:7860 --env-file ./.env my-api-image-test
 * [x] **Phase 3:** Interactive Visualizations (Streamlit)
 * [x] **Phase 4:** ML model for speed predictions
 * [x] **Phase 5:** Model deployment through an API (FastAPI)
-* [_] **Phase 6:** ML model monitoring (Evidently AI)
-
-## TODO: data drift monitoring: model used to train on the full data set, but limiting to the last year improved results. By looking at the evidently report, I realized that a left-shifted distribution meant slower traffic, and deduced that naive retraining wouldn't fix it because of historical data dilution.
+* [x] **Phase 6:** ML model monitoring (Evidently AI)
 
 
-
-
-
-# 🚦 Attica Mobility Lakehouse
-
-### **A Serverless & Portable MDS Lakehouse for Urban Traffic Analysis**
-
-This project implements a **resilient ELT pipeline** to analyze road network traffic and mobility patterns in Attica, Greece. By leveraging data from `data.gov.gr`, the system answers critical urban planning questions regarding congestion, road volatility, and sensor health.
-
----
-
-### 🏗️ **Architecture & Orchestration**
-
-The infrastructure is designed for **zero-ops** scalability and high portability:
-
-* **Orchestration:** **GitHub Actions** manages the daily lifecycle, triggering the Python ingestion engine followed by the dbt transformation layer.
-* **Resilient Ingestion:** A custom Python script pulls from `data.gov.gr` using `tenacity` for exponential backoff retries and `loguru` for structured observability. It includes a **backfill command** to recover historical data.
-* **The Data Lake (Bronze):** Raw API payloads are stored as Parquet/JSON on **Hugging Face**, providing a versioned, immutable history of Attica’s traffic.
-* **The Lakehouse (Silver/Gold):** **MotherDuck** serves as the compute engine. **dbt** materializes the data into:
-* **Staging/Int:** Cleaned, deduplicated mobility records.
-* **Marts:** Analytics-ready tables focused on road segments and time-slots.
-
-
-* **Analytics Layer:** A **Streamlit** dashboard connects to MotherDuck to visualize traffic KPIs in real-time.
-
----
-
-### 📈 **Business Intelligence Goals**
-
-The pipeline is modeled specifically to answer:
-
-1. **Temporal Peaks:** Which time slots exhibit the highest traffic density?
-2. **Flow Dynamics:** Does total vehicle volume correlate with average network speed (Identifying the tipping point of congestion)?
-3. **Road Volatility:** Which segments have the most unpredictable traffic patterns vs. steady flows?
-4. **Hardware Reliability:** Identifying potential sensor maintenance needs by detecting data gaps or anomalous "flatline" readings from measuring devices.
-
----
-
-### 🛠️ **The "Resilient" Stack**
-
-| Component | Technology | Role |
-| --- | --- | --- |
-| **Data Source** | `data.gov.gr` | Open Data API (Attica Traffic) |
-| **Ingestion** | Python + `tenacity` | Resilient extraction with exponential retries |
-| **Observability** | `loguru` | Structured logging for pipeline monitoring |
-| **Storage** | Hugging Face | Serverless Data Lake |
-| **Warehouse** | MotherDuck | Serverless Cloud DuckDB |
-| **Transformation** | dbt | Medallion-style SQL modeling |
-| **Visualization** | Streamlit | Interactive mobility analytics |
-
----
-
-### 🚀 **Key Features**
-
-* **Self-Healing:** Ingestion logic anticipates API downtime and rate-limiting.
-* **Backfill Ready:** The system can re-process historical traffic data with a single command.
-* **Environment Agnostic:** The entire transformation logic can run locally on a laptop using DuckDB or in the cloud via MotherDuck.
-
----
-
-### **How to Initialize**
-
-1. **Ingest:** `python ingest.py --backfill --days 30`
-2. **Transform:** `dbt run`
-3. **Visualize:** `streamlit run app.py`
-
-
-
-```mermaid
-graph LR
-    API[🇬🇷 Greek Gov API] -->|Extract| Ingest[🐍 Python Ingestion]
-    
-    subgraph "Data Lake (Hugging Face)"
-        Ingest -->|Raw Audit| Bronze[(🟤 Bronze\nJSON)]
-        Ingest -->|Light Transform| Silver[(⚪ Silver\nParquet)]
-    end
-
-    Silver -->|Heavy Transform| MotherDuck[🦆 MotherDuck / dbt]
-    
-    subgraph "CI/CD"
-        Cron[⏰ Daily Cron] --> Ingest
-    end
-```
-
-```mermaid
-graph LR
-    subgraph "Orchestration & Ingestion"
-    A[data.gov.gr API] -->|Python + Tenacity| B(GitHub Actions)
-    B -->|Loguru Observability| C[Hugging Face]
-    end
-
-    subgraph "Lakehouse Layer"
-    C -->|Parquet/JSON| D[MotherDuck]
-    D -->|dbt Staging| E[Materialized Tables]
-    E -->|dbt Int/Marts| F[Analytical Models]
-    end
-
-    subgraph "Consumption"
-    F --> G[Streamlit Dashboard]
-    end
-
-    style C fill:#ffbd45,stroke:#333,stroke-width:2px
-    style D fill:#326ce5,stroke:#333,stroke-width:2px
-    style G fill:#ff4b4b,stroke:#333,stroke-width:2px
-```
 
 ## 📊 Caching Architecture: The Time-Shifted Key
 
@@ -321,3 +259,6 @@ We utilize a **Time-Shifted Cache Key** combined with Streamlit's `max_entries=1
 
 ### Memory Management
 All data loading decorators are configured with `@st.cache_data(max_entries=1)`. The moment the cache key rolls over at `06:00 UTC`, Streamlit immediately drops the previous day's `pandas.DataFrame` from memory, preventing out-of-memory (OOM) crashes on Streamlit Cloud.
+
+
+```mermaid
