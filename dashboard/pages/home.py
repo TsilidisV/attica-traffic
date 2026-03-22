@@ -94,7 +94,8 @@ with container:
     with tab2:
         """
         ### Data drift report
-        Automatically fetched from DagsHub MLflow Artifacts.
+        Automatically fetched from
+        [DagsHub MLflow Artifacts](https://dagshub.com/vtsilidis/attica-mobility.mlflow/#/experiments/1/runs?searchFilter=&orderByKey=attributes.start_time&orderByAsc=false&startTime=ALL&lifecycleFilter=Active&modelVersionFilter=All+Runs&datasetsFilter=W10%3D&compareRunsMode=TABLE).
         """
         if st.button("Fetch latest drift report", type="primary"):
             with st.spinner("Connecting to DagsHub and downloading latest report..."):
