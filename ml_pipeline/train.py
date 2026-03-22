@@ -16,6 +16,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OrdinalEncoder, TargetEncoder
 from ml_pipeline.feature_engineering import TimeFeatureExtractor, load_optimized_data, preprocess_features
+from ml_pipeline.train_utils import plot_actual_vs_predicted, plot_residuals_histogram
 
 # --- SUPPRESS WARNINGS ---
 warnings.filterwarnings("ignore")
@@ -158,6 +159,16 @@ def main():
             registered_model_name=MODEL_NAME
         )
 
+        # Log plots
+        logger.info("Generating Residuals vs Predicted plot...")
+        actual_vs_predicted_fig = plot_actual_vs_predicted(y_test, predictions)
+        mlflow.log_figure(actual_vs_predicted_fig, "plots/actual_vs_predicted.png")
+
+        logger.info("Generating Residuals Histogram...")
+        hist_fig = plot_residuals_histogram(y_test, predictions)
+        mlflow.log_figure(hist_fig, "plots/residuals_histogram.png")
+
+        # log road name artifacts
         logger.info("Saving road_name and device_id mapping to MLflow...")
         mapping_df = X[['road_name', 'device_id']].drop_duplicates()
         road_to_devices = mapping_df.groupby("road_name")["device_id"].apply(list).to_dict()

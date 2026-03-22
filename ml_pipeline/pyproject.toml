@@ -13,4 +13,5 @@ dependencies = [
     "python-dotenv>=1.2.2",
     "evidently>=0.7.21",
     "duckdb>=1.4.4",
+    "matplotlib>=3.10.8",
 ]
