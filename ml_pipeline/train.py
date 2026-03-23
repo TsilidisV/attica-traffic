@@ -16,7 +16,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OrdinalEncoder, TargetEncoder
 from ml_pipeline.feature_engineering import TimeFeatureExtractor, load_optimized_data, preprocess_features
-from ml_pipeline.train_utils import plot_actual_vs_predicted, plot_residuals_histogram
+from ml_pipeline.train_utils import plot_residuals_histogram, plot_actual_vs_predicted_hexbin
 
 # --- SUPPRESS WARNINGS ---
 warnings.filterwarnings("ignore")
@@ -161,8 +161,11 @@ def main():
 
         # Log plots
         logger.info("Generating Residuals vs Predicted plot...")
-        actual_vs_predicted_fig = plot_actual_vs_predicted(y_test, predictions)
-        mlflow.log_figure(actual_vs_predicted_fig, "plots/actual_vs_predicted.png")
+        actual_vs_predicted_fig = plot_actual_vs_predicted_hexbin(y_test, predictions, bins=None)
+        mlflow.log_figure(actual_vs_predicted_fig, "plots/actual_vs_predicted_bins=none.png")
+
+        actual_vs_predicted_fig_log = plot_actual_vs_predicted_hexbin(y_test, predictions, bins='log')
+        mlflow.log_figure(actual_vs_predicted_fig_log, "plots/actual_vs_predicted_bins=log.png")
 
         logger.info("Generating Residuals Histogram...")
         hist_fig = plot_residuals_histogram(y_test, predictions)

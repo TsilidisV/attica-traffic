@@ -11,8 +11,14 @@ from data import (
     get_homepage_kpi,
     get_volatility_data_last_30,
 )
-from predict import call_hf_api, get_drift_report
+from predict import call_hf_api, get_drift_report, get_model_data
 
+DAGSHUB_USERNAME = st.secrets["DAGSHUB_USERNAME"]
+DAGSHUB_REPO = st.secrets["DAGSHUB_REPO"]
+model_experiment_link = f"https://dagshub.com/{DAGSHUB_USERNAME}/{DAGSHUB_REPO}.mlflow/#/experiments/0/runs?searchFilter=&orderByKey=attributes.start_time&orderByAsc=false&startTime=ALL&lifecycleFilter=Active&modelVersionFilter=All+Runs&datasetsFilter=W10%3D"
+monitor_link = f"https://dagshub.com/{DAGSHUB_USERNAME}/{DAGSHUB_REPO}.mlflow/#/experiments/1/runs?searchFilter=&orderByKey=attributes.start_time&orderByAsc=false&startTime=ALL&lifecycleFilter=Active&modelVersionFilter=All+Runs&datasetsFilter=W10%3D&compareRunsMode=TABLE"
+
+# Data loading
 current_cache_key = get_daily_cache_key()
 
 with st.spinner("Fetching data from MotherDuck..."):
@@ -26,6 +32,7 @@ with st.spinner("Fetching data from MotherDuck..."):
 
 with st.spinner("Fetching data from MotherDuck..."):
     df_health = get_health(current_cache_key)
+
 
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Attica Traffic Analytics", page_icon="🚗", layout="wide")
@@ -44,8 +51,15 @@ For a quick overview of the last 30 days, check out bellow. For analytics concer
 
 container = st.container(border=True)
 
+# Initialize session state variables if they don't exist
+if "model_data" not in st.session_state:
+    st.session_state.model_data = None
+
+
 with container:
-    tab1, tab2 = st.tabs(["🔮 Live predictions", "🖥️ Data drift monitoring"])
+    tab1, tab2, tab3 = st.tabs(
+        ["🔮 Live predictions", "🧐 Model evaluation", "🖥️ Data drift monitoring"]
+    )
 
     with tab1:
         col1, col2, col3 = st.columns(3)
@@ -71,10 +85,9 @@ with container:
             )
 
         with col3:
-            st.markdown("<br>", unsafe_allow_html=True) # Spacer
-            submitted = st.button("Get prediction",
-                type="primary",
-                use_container_width=True
+            st.markdown("<br>", unsafe_allow_html=True)  # Spacer
+            submitted = st.button(
+                "Get prediction", type="primary", use_container_width=True
             )
 
         if submitted:
@@ -92,10 +105,59 @@ with container:
                 st.json(prediction)
 
     with tab2:
+        f"""
+        ### Model evaluation report
+        Automatically fetched from
+        [DagsHub MLflow Artifacts]({model_experiment_link}).
         """
+
+        # When button is clicked, fetch data and SAVE it to session state
+        if st.button("Fetch model metrics", type="primary"):
+            st.session_state.model_data = get_model_data()
+
+        # Check if data exists in session state (instead of checking the button)
+        # This block will now persist even when you click the radio button
+        if st.session_state.model_data is not None:
+            model_data = st.session_state.model_data  # Retrieve from state
+
+            col1m, col2m = st.columns(2)
+
+            with col1m:
+                st.metric(
+                    label="Mean absolute error",
+                    value=f"{model_data['metrics']['mae']:.4f} Km/h",
+                )
+
+            with col2m:
+                st.metric(
+                    label="$$R^2$$ score",
+                    value=f"{model_data['metrics']['r2_score']:.4f}",
+                )
+
+            st.divider()
+
+            genre = st.radio(
+                "Scale of the density of the data points",
+                ["linear", "log"],
+                captions=["True data density", "Favours outliers"],
+                horizontal=True,
+                help="ulo",
+            )
+
+            if genre == "linear":
+                st.image(model_data["images"]["scatter_linear"], caption="Linear scale")
+            elif genre == "log":
+                st.image(model_data["images"]["scatter_log"], caption="Log scale")
+
+            st.divider()
+
+            st.image(model_data["images"]["residuals"])
+
+    with tab3:
+        f"""
         ### Data drift report
         Automatically fetched from
-        [DagsHub MLflow Artifacts](https://dagshub.com/vtsilidis/attica-mobility.mlflow/#/experiments/1/runs?searchFilter=&orderByKey=attributes.start_time&orderByAsc=false&startTime=ALL&lifecycleFilter=Active&modelVersionFilter=All+Runs&datasetsFilter=W10%3D&compareRunsMode=TABLE).
+        [DagsHub MLflow Artifacts]({monitor_link}).
         """
         if st.button("Fetch latest drift report", type="primary"):
             with st.spinner("Connecting to DagsHub and downloading latest report..."):
@@ -200,7 +262,7 @@ with st.container(horizontal=True, gap="medium", border=True):
 
 The dataset contains two primary sources of bad data:
 1. Dead Readings: Some devices return zero counted cars and zero average speed at all times
-2. Missing Readings: Timeslots that data.gov.gr hosts no data
+2. Missing Readings: Time slots that data.gov.gr hosts no data
 
 There's a clear increase in Dead Readings, indicating the necessity for device maintenance.
 

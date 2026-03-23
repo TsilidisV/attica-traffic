@@ -23,7 +23,7 @@ model:
 mlflow:
   model_name: 'attica_traffic_model'
   experiment_name: 'ml_model_traffic_speed_prediction'
-
+  
 # Drift reporting
 drift:
   mlflow_monitor_experiment_name: 'data_drift_monitoring'
