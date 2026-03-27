@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <i>• What's traffic going to be like in a particular road?</i><br> 
+  <i>• What's traffic going to be like in a particular road and time?</i><br> 
   <i>• Which is the busiest time slot?</i><br> 
   <i>• Does total vehicle volume correlate with average network speed?</i><br>
   <i>• Which are the most and least volatile roads?</i><br>

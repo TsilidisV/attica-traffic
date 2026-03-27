@@ -1,0 +1,126 @@
+direction: down
+
+vars: {
+  # Themes live right here in the root of vars!
+  d2-theme-dark: 200 # Used automatically for Dark Mode viewers
+
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+# --- CLASSES (Source-based colors) ---
+classes: {
+  from_api: {style: {stroke: "#A0A0A0"; stroke-width: 2}} # Neutral Gray
+  from_github: {style: {stroke: "#2496ED"; stroke-width: 2}} # GitHub Blue
+  from_python: {style: {stroke: "#4B8BBE"; stroke-width: 2}} # Python Blue
+  from_hf: {style: {stroke: "#FFD21E"; stroke-width: 2}} # HF Yellow/Orange
+  from_md: {style: {stroke: "#FFF000"; stroke-width: 2}} # DuckDB Yellow
+  from_ml: {style: {stroke: "#F37626"; stroke-width: 2}} # Scikit-learn Orange
+  from_dagshub: {style: {stroke: "#E1E4E8"; stroke-width: 2}} # Clean Silver/White
+  from_streamlit: {style: {stroke: "#FF4B4B"; stroke-width: 2}} # Streamlit Red
+}
+
+# --- COMPONENTS ---
+API: External API {shape: cylinder; icon: https://api.iconify.design/logos/json.svg}
+
+Discord: Discord Webhook {shape: queue; icon: https://api.iconify.design/logos/discord-icon.svg}
+
+GitHub: GitHub Actions {
+  icon: https://api.iconify.design/logos/github-icon.svg
+
+  Ingestion: Daily Ingestion {shape: hexagon; icon: https://api.iconify.design/logos/github-actions.svg}
+  dbtJob: Post-Ingestion dbt {shape: hexagon; icon: https://api.iconify.design/logos/github-actions.svg}
+  DriftJob: Weekly Data Drift {shape: hexagon; icon: https://api.iconify.design/logos/github-actions.svg}
+}
+
+PyScript: Python Ingestion Script {icon: https://api.iconify.design/logos/python.svg}
+
+HF: Hugging Face {
+  icon: https://api.iconify.design/devicon/huggingface.svg
+
+  Datasets: Datasets {
+    shape: package
+    Repo: Datasets Repo {shape: cylinder}
+  }
+
+  Spaces: Spaces {
+    shape: package
+    Docker: Docker Container {
+      icon: https://api.iconify.design/logos/docker-icon.svg
+      FastAPI: Inference API {shape: rectangle; icon: https://api.iconify.design/devicon/fastapi.svg}
+    }
+  }
+}
+
+MD: MotherDuck Data Warehouse {
+  shape: package
+  icon: https://api.iconify.design/devicon/duckdb.svg
+
+  Bronze: Bronze Layer {shape: cylinder}
+
+  dbt_1: dbt Transform {shape: step; icon: https://api.iconify.design/logos/dbt.svg}
+
+  Silver: Silver Layer {shape: cylinder}
+
+  dbt_2: dbt Transform {shape: step; icon: https://api.iconify.design/logos/dbt.svg}
+
+  Gold: Gold Layer {shape: cylinder}
+}
+
+DagsHub: DagsHub {
+  icon: https://api.iconify.design/simple-icons:mlflow.svg
+
+  MLflow: MLflow Tracking Server {
+    shape: rectangle
+    TrainExp: Model Training Experiments {shape: parallelogram}
+    DriftExp: Evidently AI Drift Experiments {shape: parallelogram}
+  }
+
+  Registry: Model Registry {shape: cylinder}
+}
+
+MLProcess: Machine Learning Process {shape: step; icon: https://api.iconify.design/devicon/scikitlearn.svg}
+
+Streamlit: Streamlit Dashboard {
+  icon: https://api.iconify.design/logos/streamlit.svg
+
+  GoldDash: Gold Layer Dashboards {shape: parallelogram}
+  TrainReports: Training Metrics {shape: parallelogram}
+  DriftReports: Data Drift Reports {shape: parallelogram}
+  PredictBtn: Predict Button {shape: rectangle}
+}
+
+# --- CONNECTIONS ---
+
+# 1. Ingestion Flow
+GitHub.Ingestion -> PyScript: Triggers (Daily) {class: from_github}
+API -> PyScript: Fetches data {class: from_api}
+PyScript -> HF.Datasets.Repo: Ingests raw data {class: from_python}
+
+# 2. Transformation Flow
+GitHub.dbtJob -> HF.Datasets.Repo: Extracts data {class: from_github}
+GitHub.dbtJob -> MD.Bronze: Loads data {class: from_github}
+
+MD.Bronze -> MD.dbt_1: {class: from_md}
+MD.dbt_1 -> MD.Silver: {class: from_md}
+MD.Silver -> MD.dbt_2: {class: from_md}
+MD.dbt_2 -> MD.Gold: {class: from_md}
+
+MD.Gold -> Streamlit.GoldDash: Feeds BI metrics {class: from_md}
+
+# 3. Model Training Flow
+MD.Gold -> MLProcess: Fetches training data {class: from_md}
+MLProcess -> DagsHub.MLflow.TrainExp: Logs metrics & params {class: from_ml}
+MLProcess -> DagsHub.Registry: Registers new model {class: from_ml}
+DagsHub.MLflow.TrainExp -> Streamlit.TrainReports: Displays metrics {class: from_dagshub}
+
+# 4. Data Drift Flow
+GitHub.DriftJob -> DagsHub.MLflow.DriftExp: Runs Evidently AI {class: from_github}
+DagsHub.MLflow.DriftExp -> Streamlit.DriftReports: Displays results {class: from_dagshub}
+DagsHub.MLflow.DriftExp -> Discord: Sends alerts {class: from_dagshub}
+
+# 5. Inference / API Flow
+DagsHub.Registry -> HF.Spaces.Docker: Pulls latest model {class: from_dagshub}
+Streamlit.PredictBtn -> HF.Spaces.Docker: API Call (Predict request) {class: from_streamlit}
+HF.Spaces.Docker -> Streamlit.PredictBtn: Returns prediction {class: from_hf}
