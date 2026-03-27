@@ -3,7 +3,7 @@ name: Generate D2 Diagram
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - 'docs/architecture.d2'
 
