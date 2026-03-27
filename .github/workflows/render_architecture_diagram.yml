@@ -1,0 +1,33 @@
+name: Generate D2 Diagram
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/architecture.d2'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    # CRITICAL: Required for the bot to commit the SVG back to your repo
+    permissions:
+      contents: write 
+      
+    steps:
+      - uses: actions/checkout@v4
+
+      # FIXED: Download and install the binary directly from D2
+      - name: Install D2
+        run: curl -fsSL https://d2lang.com/install.sh | sh -s --
+
+      - name: Render Diagram
+        run: d2 --theme=200 --layout=elk docs/architecture.d2 docs/architecture.svg
+
+      # Commits the new SVG back to your repo
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: Auto-update architecture diagram"
+          file_pattern: "docs/*.svg"

@@ -58,6 +58,9 @@ The system is designed as a modern Lakehouse architecture, leveraging Hugging Fa
 - Orchestration: GitHub Actions manages the entire lifecycle, from daily ingestion to CI/CD triggers.
 
 
+![GCP Medallion Architecture](./docs/architecture.svg)
+
+
 ## 🛠 Tech Stack
 
 | Category | Tools |
@@ -261,4 +264,3 @@ We utilize a **Time-Shifted Cache Key** combined with Streamlit's `max_entries=1
 All data loading decorators are configured with `@st.cache_data(max_entries=1)`. The moment the cache key rolls over at `06:00 UTC`, Streamlit immediately drops the previous day's `pandas.DataFrame` from memory, preventing out-of-memory (OOM) crashes on Streamlit Cloud.
 
 
-```mermaid
