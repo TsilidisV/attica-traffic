@@ -22,7 +22,7 @@ DAGSHUB_TOKEN = st.secrets["DAGSHUB_TOKEN"]
 
 # Load Configuration
 try:
-    with open("../config.yaml", "r") as file:
+    with open("config.yaml", "r") as file:
         config = yaml.safe_load(file)
     MLFLOW_MONITOR_EXPERIMENT_NAME = config["drift"]["mlflow_monitor_experiment_name"]
     MLFLOW_MODEL_NAME = config["mlflow"]["model_name"]
